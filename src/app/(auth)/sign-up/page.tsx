@@ -3,10 +3,10 @@ import { FormMessage, Message } from "@/components/auth/form-message";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { IconBrandGoogle } from "@tabler/icons-react";
+//import { IconBrandGoogle } from "@tabler/icons-react";
+//import { Button } from "@/components/ui/button";
 
 export default async function Signup(props: {
   searchParams: Promise<Message>;

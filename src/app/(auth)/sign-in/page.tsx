@@ -3,10 +3,10 @@ import { FormMessage, Message } from "@/components/auth/form-message";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { IconBrandGoogle } from "@tabler/icons-react";
+//import { IconBrandGoogle } from "@tabler/icons-react";
+//import { Button } from "@/components/ui/button";
 
 export default async function Login(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams;
@@ -14,7 +14,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h1 className="text-2xl font-medium">Sign in</h1>
       <p className="text-sm text-foreground">
-        Don't have an account?{" "}
+        No tienes una cuenta?{" "}
         <Link className="text-foreground font-medium underline" href="/sign-up">
           Sign up
         </Link>
