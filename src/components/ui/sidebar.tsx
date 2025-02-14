@@ -105,7 +105,6 @@ export const DesktopSidebar = ({
 };
 
 export const MobileSidebar = ({
-  className,
   children,
   ...props
 }: React.ComponentProps<"div">) => {
