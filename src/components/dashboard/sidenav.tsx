@@ -11,7 +11,7 @@ export default function Sidenav() {
   return (
     <Sidebar open={open} setOpen={setOpen}>
       <SidebarBody>
-        <div className="flex md:flex-col flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="flex md:flex-col flex-1 overflow-y-auto overflow-x-hidden gap-8">
           {open ? <Logo /> : <LogoIcon />}
           <NavLinks />
         </div>

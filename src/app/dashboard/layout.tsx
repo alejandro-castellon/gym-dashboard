@@ -1,7 +1,13 @@
 import SideNav from "@/components/dashboard/sidenav";
 import { ModeToggle } from "@/components/ui/theme";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div
       className={
