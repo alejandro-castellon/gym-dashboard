@@ -19,7 +19,7 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { error, data } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -30,6 +30,16 @@ export const signUpAction = async (formData: FormData) => {
   if (error) {
     console.error(error.code + " " + error.message);
     return encodedRedirect("error", "/sign-up", error.message);
+  } else if (
+    data.user &&
+    data.user.identities &&
+    data.user.identities.length == 0
+  ) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "There is already an account associated with this email address."
+    );
   } else {
     return encodedRedirect(
       "success",

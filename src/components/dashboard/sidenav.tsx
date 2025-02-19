@@ -5,9 +5,11 @@ import NavLinks from "./navlinks";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useUser } from "@/context/UserContext";
 
 export default function Sidenav() {
   const [open, setOpen] = useState(false);
+  const { user } = useUser();
   return (
     <Sidebar open={open} setOpen={setOpen}>
       <SidebarBody>
@@ -18,7 +20,7 @@ export default function Sidenav() {
         <div>
           <SidebarLink
             link={{
-              label: "Casfer",
+              label: user?.email ?? "Guest",
               href: "#",
               icon: (
                 <Image
