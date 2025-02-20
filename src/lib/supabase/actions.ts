@@ -54,13 +54,17 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error: signInError } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+  if (signInError) {
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "Contraseña incorrecta. Intente nuevamente."
+    );
   }
 
   return redirect("/dashboard");
