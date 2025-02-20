@@ -141,8 +141,83 @@ export const resetPasswordAction = async (formData: FormData) => {
   encodedRedirect("success", "/dashboard/reset-password", "Password updated");
 };
 
+export const updateEmailAction = async (formData: FormData) => {
+  const supabase = await createClient();
+  const email = formData.get("email")?.toString();
+
+  if (!email) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile",
+      "El email es requerido"
+    );
+  }
+
+  const { error } = await supabase.auth.updateUser({ email: email });
+
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard/update-email",
+      "No se pudo actualizar el email"
+    );
+  }
+
+  return encodedRedirect(
+    "success",
+    "/dashboard/update-email",
+    "Email actualizado correctamente. Revisa tu correo para confirmar el cambio."
+  );
+};
+
 export const signOutAction = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();
   return redirect("/sign-in");
+};
+
+export const updateProfile = async (formData: FormData) => {
+  const supabase = await createClient();
+  const name = formData.get("name")?.toString();
+
+  if (!name) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile",
+      "El nombre es requerido"
+    );
+  }
+
+  // Obtener el usuario autenticado
+  const user = await supabase.auth.getUser();
+
+  if (!user || !user.data) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile",
+      "Usuario no encontrado"
+    );
+  }
+
+  // Actualizar el perfil en la base de datos
+  const { error } = await supabase
+    .from("users")
+    .update({ name })
+    .eq("id", user.data.user?.id);
+
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile",
+      "No se pudo actualizar el perfil"
+    );
+  }
+
+  return encodedRedirect(
+    "success",
+    "/dashboard/profile",
+    "Perfil actualizado correctamente"
+  );
 };

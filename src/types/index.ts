@@ -1,6 +1,7 @@
 export interface User {
   id: string; // El ID del usuario, igual al ID de auth de Supabase
   email: string; // El correo del usuario
+  name: string; // El nombre del usuario
   admin: boolean; // Indicador si el usuario es administrador
   created_at: string; // Fecha de creación del usuario en formato ISO
 }

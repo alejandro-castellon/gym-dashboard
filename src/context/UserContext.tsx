@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { User } from "@/types";
 
 interface UserContextType {
   user: User | null;
@@ -28,11 +28,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         const { data: userData } = await supabase
           .from("users")
-          .select("admin")
+          .select("*")
           .eq("id", user.id)
           .single();
 
-        setUser(user);
+        setUser(userData);
         setIsAdmin(userData?.admin || false);
       }
 
