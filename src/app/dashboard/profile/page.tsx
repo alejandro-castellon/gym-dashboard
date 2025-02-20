@@ -5,12 +5,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ProfileData from "@/components/profile";
-import { FormMessage, Message } from "@/components/auth/form-message";
 
-export default async function Profile(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
+export default async function Profile() {
   return (
     <Card className="md:w-1/3">
       <CardHeader>

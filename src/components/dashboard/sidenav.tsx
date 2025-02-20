@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import NavLinks from "./navlinks";
 import Link from "next/link";
@@ -20,7 +20,7 @@ export default function Sidenav() {
         <div>
           <SidebarLink
             link={{
-              label: user?.name ?? user?.email ?? "User",
+              label: user?.name ?? user?.email ?? "Usuario",
               href: "/dashboard/profile",
               icon: (
                 <Image
