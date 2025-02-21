@@ -180,19 +180,31 @@ export const signOutAction = async () => {
 export const updateProfile = async (formData: FormData) => {
   const supabase = await createClient();
   const name = formData.get("name")?.toString();
+  const ci = formData.get("ci")?.toString();
+  const fecha_nacimiento = formData.get("fecha_nacimiento")?.toString();
 
-  if (!name) {
+  // Validar campos
+  if (!name || !ci || !fecha_nacimiento) {
     return encodedRedirect(
       "error",
       "/dashboard/profile",
-      "El nombre es requerido"
+      "Todos los campos son obligatorios"
+    );
+  }
+
+  // Convertir la fecha de nacimiento a formato Date si es necesario
+  const birthDate = new Date(fecha_nacimiento);
+  if (isNaN(birthDate.getTime())) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile",
+      "Fecha de nacimiento no válida"
     );
   }
 
   // Obtener el usuario autenticado
-  const user = await supabase.auth.getUser();
-
-  if (!user || !user.data) {
+  const { data: user, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
     return encodedRedirect(
       "error",
       "/dashboard/profile",
@@ -203,8 +215,8 @@ export const updateProfile = async (formData: FormData) => {
   // Actualizar el perfil en la base de datos
   const { error } = await supabase
     .from("users")
-    .update({ name })
-    .eq("id", user.data.user?.id);
+    .update({ name, ci, fecha_nacimiento: birthDate.toISOString() })
+    .eq("id", user.user.id);
 
   if (error) {
     console.error(error.message);

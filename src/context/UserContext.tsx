@@ -21,24 +21,46 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
 
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        setLoading(true);
 
-      if (user) {
-        const { data: userData } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+        // Obtener el usuario autenticado
+        const { data: authData } = await supabase.auth.getUser();
 
-        setUser(userData);
-        setIsAdmin(userData?.admin || false);
+        if (authData?.user) {
+          // Obtener datos adicionales del usuario usando su ID
+          const { data: userData } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", authData.user.id)
+            .single();
+
+          if (userData) {
+            setUser({
+              id: authData.user.id,
+              email: authData.user.email ?? "",
+              name: userData.name ?? "",
+              ci: userData.ci ?? "",
+              fecha_nacimiento: userData.fecha_nacimiento ?? "",
+              created_at: userData.created_at,
+            });
+            setIsAdmin(userData.admin || false);
+          } else {
+            setUser(null);
+            setIsAdmin(false);
+          }
+        } else {
+          setUser(null);
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error("Error al obtener el usuario:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
+    // Llamar al cargar el componente
     fetchUser();
   }, []);
 

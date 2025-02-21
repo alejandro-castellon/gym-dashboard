@@ -13,6 +13,8 @@ export default function ProfileData() {
 
   const [formData, setFormData] = useState({
     name: user?.name || "",
+    ci: user?.ci || "",
+    fecha_nacimiento: user?.fecha_nacimiento || "",
   });
 
   const [initialData, setInitialData] = useState(formData);
@@ -21,9 +23,13 @@ export default function ProfileData() {
   useEffect(() => {
     setFormData({
       name: user?.name || "",
+      ci: user?.ci || "",
+      fecha_nacimiento: user?.fecha_nacimiento || "",
     });
     setInitialData({
       name: user?.name || "",
+      ci: user?.ci || "",
+      fecha_nacimiento: user?.fecha_nacimiento || "",
     });
   }, [user]);
 
@@ -35,7 +41,11 @@ export default function ProfileData() {
 
   // Detecta si hay cambios
   useEffect(() => {
-    setIsChanged(formData.name !== initialData.name);
+    setIsChanged(
+      formData.name !== initialData.name ||
+        formData.ci !== initialData.ci ||
+        formData.fecha_nacimiento !== initialData.fecha_nacimiento
+    );
   }, [formData, initialData]);
 
   // Restablece los valores iniciales
@@ -47,10 +57,22 @@ export default function ProfileData() {
   const handleSave = () => {
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("name", formData.name);
+    formDataToSubmit.append("ci", formData.ci);
+    formDataToSubmit.append("fecha_nacimiento", formData.fecha_nacimiento);
+
+    // Guardar los datos
     updateProfile(formDataToSubmit);
-    setInitialData(formData); // Actualiza los datos iniciales después de guardar
+
+    // Actualizar los datos iniciales y cambiar el estado
+    setInitialData(formData);
     setIsChanged(false);
+
+    // Esperar un poco antes de recargar la página para asegurarse de que los datos estén guardados
+    setTimeout(() => {
+      window.location.reload();
+    }, 500); // 500ms de espera (ajusta el tiempo según necesites)
   };
+
   return (
     <div>
       <CardContent>
@@ -63,6 +85,25 @@ export default function ProfileData() {
                 placeholder="Tu nombre"
                 value={formData.name}
                 onChange={handleChange}
+              />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="ci">Carnet</Label>
+              <Input
+                id="ci"
+                placeholder="Tu carnet"
+                value={formData.ci}
+                onChange={handleChange}
+                type="number"
+              />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="fecha_nacimiento">Fecha de nacimiento</Label>
+              <Input
+                id="fecha_nacimiento"
+                value={formData.fecha_nacimiento}
+                onChange={handleChange}
+                type="date"
               />
             </div>
             <div className="flex flex-col space-y-1.5">

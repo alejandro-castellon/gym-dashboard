@@ -58,7 +58,7 @@ export default function NavLinks() {
   return (
     <div className="md:mt-8 flex md:flex-col gap-10 md:gap-2 flex-row">
       {filteredLinks.map((link, idx) => (
-        <SidebarLink key={idx} link={{ ...link, onClick: link.onClick }} />
+        <SidebarLink key={idx} link={{ ...link }} />
       ))}
     </div>
   );
