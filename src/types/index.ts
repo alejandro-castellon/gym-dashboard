@@ -22,4 +22,8 @@ export interface Membership {
   start_date: string; // Fecha de inicio de la membresía en formato ISO
   end_date: string; // Fecha de finalización de la membresía en formato ISO
   price: number; // Precio de la membresía
+  gyms?: {
+    // Información adicional sobre el gimnasio (opcional si no existe)
+    name: string; // Nombre del gimnasio
+  };
 }

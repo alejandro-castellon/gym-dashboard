@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export default async function Login(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams;
   return (
-    <div className="max-w-md w-full mx-auto rounded-none rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+    <div className="max-w-md w-full mx-auto rounded-none rounded-3xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h1 className="text-2xl font-medium">Sign in</h1>
       <p className="text-sm text-foreground">
         No tienes una cuenta?{" "}

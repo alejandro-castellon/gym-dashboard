@@ -5,6 +5,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ProfileData from "@/components/profile";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Perfil",
+};
 
 export default async function Profile() {
   return (
