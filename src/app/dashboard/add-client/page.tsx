@@ -1,16 +1,16 @@
 import React from "react";
 import { Metadata } from "next";
-import SettingsForm from "@/components/dashboard/gyms/settings";
+import AddClientForm from "@/components/dashboard/gyms/clients/add-client";
 
 export const metadata: Metadata = {
-  title: "Configuración",
+  title: "Agregar cliente",
 };
 
 export default function page() {
   return (
     <div>
-      <h1>Configuración</h1>
-      <SettingsForm />
+      <h1>Agregar cliente</h1>
+      <AddClientForm />
     </div>
   );
 }

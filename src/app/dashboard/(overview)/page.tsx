@@ -7,6 +7,7 @@ import {
   getUserMembership,
   getUserRole,
 } from "@/lib/supabase/data";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -33,7 +34,9 @@ export default function DashboardPage() {
     <div>
       <h1>Dashboard</h1>
 
-      <Suspense fallback={<div>Cargando información personalizada...</div>}>
+      <Suspense
+        fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}
+      >
         <RoleBasedData />
       </Suspense>
     </div>

@@ -22,14 +22,14 @@ const links = [
   },
   {
     label: "Clientes",
-    href: "/dashboard/customers",
+    href: "/dashboard/clients",
     icon: (
       <IconUsers className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {
     label: "Agregar cliente",
-    href: "/dashboard/add-customer",
+    href: "/dashboard/add-client",
     icon: (
       <IconUserPlus className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),

@@ -12,7 +12,7 @@ export function FormMessage({ message }: { message: Message }) {
         </div>
       )}
       {"error" in message && (
-        <div className="text-destructive-foreground border-l-2 border-destructive-foreground px-4">
+        <div className="dark:text-destructive-foreground text-destructive border-l-2 border-destructive dark:border-destructive-foreground px-4">
           {message.error}
         </div>
       )}
