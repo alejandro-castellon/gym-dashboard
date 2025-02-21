@@ -1,45 +1,41 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
+import MembershipDashboard from "@/components/dashboard/memberships";
+import GymDashboard from "@/components/dashboard/gyms";
 import {
   getUserGyms,
   getUserMembership,
   getUserRole,
 } from "@/lib/supabase/data";
-import { Gym, Membership } from "@/types";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-export default async function Dashboard() {
-  try {
-    const isAdmin = await getUserRole();
+// Componente que primero verifica el rol y luego carga los datos adecuados
+async function RoleBasedData() {
+  // Primero verificamos el rol del usuario
+  const isAdmin = await getUserRole();
 
-    if (isAdmin) {
-      const gym: Gym = await getUserGyms();
-      return (
-        <div className="flex flex-1">
-          <div className="flex flex-col gap-2 flex-1 w-full h-screen">
-            <div className="flex items-center gap-4">Hey, {gym.name}!</div>
-          </div>
-        </div>
-      );
-    } else {
-      const membership: Membership = await getUserMembership();
-      return (
-        <div className="flex flex-1">
-          <div className="flex flex-col gap-2 flex-1 w-full h-screen">
-            <div className="flex items-center gap-4">
-              Hey, tienes una membresía en{" "}
-              {membership.gyms?.name ?? "un gimnasio desconocido"} desde{" "}
-              {membership.start_date} hasta {membership.end_date}.
-            </div>
-          </div>
-        </div>
-      );
-    }
-  } catch (error) {
-    return (
-      <div className="text-red-500">Error: {(error as Error).message}</div>
-    );
+  if (isAdmin) {
+    // Si es admin, solo cargamos los datos del gimnasio
+    const gym = await getUserGyms();
+    return <GymDashboard gym={gym} />;
+  } else {
+    // Si es cliente, solo cargamos los datos de membresía
+    const membership = await getUserMembership();
+    return <MembershipDashboard membership={membership} />;
   }
+}
+
+export default function DashboardPage() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+
+      <Suspense fallback={<div>Cargando información personalizada...</div>}>
+        <RoleBasedData />
+      </Suspense>
+    </div>
+  );
 }

@@ -16,6 +16,10 @@ export const getUserGyms = async () => {
     .eq("user_id", user.user.id)
     .single();
 
+  if (!data) {
+    return null;
+  }
+
   if (error) {
     throw new Error(`Error al obtener los gimnasios: ${error.message}`);
   }
@@ -38,6 +42,10 @@ export const getUserMembership = async () => {
     .select("*, gyms(name)")
     .eq("user_id", user.user.id)
     .single();
+
+  if (!data) {
+    return null;
+  }
 
   if (error) {
     throw new Error(`Error al obtener la membresía: ${error.message}`);
