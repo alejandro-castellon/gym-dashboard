@@ -65,16 +65,32 @@ export function DataTable<TData, TValue>({
   return (
     <div className="mt-4">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={
-            (table.getColumn("user_email")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("user_email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
+          <Input
+            placeholder="Filtrar nombres..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <Input
+            placeholder="Filtrar emails..."
+            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("email")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm "
+          />
+          <Input
+            placeholder="Filtrar CI..."
+            value={(table.getColumn("ci")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("ci")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

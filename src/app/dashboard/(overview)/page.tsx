@@ -32,7 +32,7 @@ async function RoleBasedData() {
 export default function DashboardPage() {
   return (
     <div>
-      <h1>Dashboard</h1>
+      <h1 className="text-2xl font-medium">Dashboard</h1>
 
       <Suspense
         fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}

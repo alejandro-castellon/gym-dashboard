@@ -36,7 +36,7 @@ export const getUserMembership = async () => {
   const { data, error } = await supabase
     .from("memberships")
     .select("*, gyms(name)")
-    .eq("user_email", user.user.email)
+    .eq("user_id", user.user.id)
     .single();
 
   if (!data) {
@@ -71,10 +71,9 @@ export const getGymMemberships = async () => {
   // Obtener la membresía del usuario
   const { data } = await supabase
     .from("memberships")
-    .select("*, users(name, ci, email)")
+    .select("*, users:users(name, ci, email)")
     .eq("gym_id", gym.id);
 
-  console.log(data);
   if (!data) {
     return null;
   }

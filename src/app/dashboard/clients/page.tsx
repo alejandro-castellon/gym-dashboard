@@ -15,7 +15,7 @@ export default async function Page() {
 
   return (
     <main>
-      <h1>Clientes</h1>
+      <h1 className="text-2xl font-medium">Clientes</h1>
       <Suspense
         fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}
       >
