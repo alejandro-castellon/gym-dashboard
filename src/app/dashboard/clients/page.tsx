@@ -25,10 +25,13 @@ export default function Page() {
   ];
 
   return (
-    <Suspense
-      fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}
-    >
-      <DataTable columns={columns} data={data} />
-    </Suspense>
+    <main>
+      <h1>Clientes</h1>
+      <Suspense
+        fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}
+      >
+        <DataTable columns={columns} data={data} />
+      </Suspense>
+    </main>
   );
 }

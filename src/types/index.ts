@@ -7,11 +7,19 @@ export interface User {
   ci: string; // Carnet de identidad del usuario
 }
 
+interface GymHours {
+  [key: string]: {
+    open: string;
+    close: string;
+  };
+}
+
 export interface Gym {
   id: string; // ID del gimnasio
   name: string; // Nombre del gimnasio
   created_at: string; // Fecha de creación del gimnasio en formato ISO
   user_id: string; // ID del usuario (propietario o administrador)
+  hours: GymHours; // Horario de apertura y cierre del gimnasio
 }
 
 export interface Membership {

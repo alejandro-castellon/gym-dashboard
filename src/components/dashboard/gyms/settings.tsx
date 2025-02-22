@@ -4,73 +4,120 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { updateGymData } from "@/lib/supabase/actions";
+import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/context/UserContext";
-import { updateProfile } from "@/lib/supabase/actions";
-import Link from "next/link";
+
+type Weekday =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+// Mapeo de los días en inglés a español
+const weekdayTranslations: Record<Weekday, string> = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miércoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sábado",
+  sunday: "Domingo",
+};
+
+const weekdays: Weekday[] = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
 
 export default function SettingsForm() {
+  const supabase = createClient();
   const { user } = useUser();
-
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    ci: user?.ci || "",
-    fecha_nacimiento: user?.fecha_nacimiento || "",
+    name: "",
+    gym_hours: {
+      monday: { open: "", close: "" },
+      tuesday: { open: "", close: "" },
+      wednesday: { open: "", close: "" },
+      thursday: { open: "", close: "" },
+      friday: { open: "", close: "" },
+      saturday: { open: "", close: "" },
+      sunday: { open: "", close: "" },
+    },
   });
-
   const [initialData, setInitialData] = useState(formData);
   const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
-    setFormData({
-      name: user?.name || "",
-      ci: user?.ci || "",
-      fecha_nacimiento: user?.fecha_nacimiento || "",
-    });
-    setInitialData({
-      name: user?.name || "",
-      ci: user?.ci || "",
-      fecha_nacimiento: user?.fecha_nacimiento || "",
-    });
-  }, [user]);
+    const fetchGym = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from("gyms")
+          .select("*")
+          .contains("admin_ids", [user.id])
+          .single();
 
-  // Maneja los cambios en los campos
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+        if (error) {
+          console.error("Error al obtener los gimnasios:", error);
+        } else if (data) {
+          setFormData({
+            name: data.name,
+            gym_hours: data.hours,
+          });
+          setInitialData({
+            name: data.name,
+            gym_hours: data.hours,
+          });
+        }
+      }
+    };
+
+    fetchGym();
+  }, [user, supabase]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    day: Weekday,
+    type: "open" | "close"
+  ) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      gym_hours: {
+        ...prev.gym_hours,
+        [day]: { ...prev.gym_hours[day], [type]: value },
+      },
+    }));
   };
 
-  // Detecta si hay cambios
   useEffect(() => {
-    setIsChanged(
-      formData.name !== initialData.name ||
-        formData.ci !== initialData.ci ||
-        formData.fecha_nacimiento !== initialData.fecha_nacimiento
-    );
+    setIsChanged(JSON.stringify(formData) !== JSON.stringify(initialData));
   }, [formData, initialData]);
 
-  // Restablece los valores iniciales
   const handleCancel = () => {
     setFormData(initialData);
   };
 
-  // Lógica para guardar los datos
   const handleSave = () => {
+    if (JSON.stringify(formData) === JSON.stringify(initialData)) return;
+
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("name", formData.name);
-    formDataToSubmit.append("ci", formData.ci);
-    formDataToSubmit.append("fecha_nacimiento", formData.fecha_nacimiento);
-
-    // Guardar los datos
-    updateProfile(formDataToSubmit);
-
-    // Actualizar los datos iniciales y cambiar el estado
+    Object.entries(formData.gym_hours).forEach(([day, hours]) => {
+      formDataToSubmit.append(`${day}_open`, hours.open);
+      formDataToSubmit.append(`${day}_close`, hours.close);
+    });
+    updateGymData(formDataToSubmit);
     setInitialData(formData);
     setIsChanged(false);
-
-    // Esperar un poco antes de recargar la página para asegurarse de que los datos estén guardados
-    setTimeout(() => {
-      window.location.reload();
-    }, 500); // 500ms de espera (ajusta el tiempo según necesites)
   };
 
   return (
@@ -82,47 +129,46 @@ export default function SettingsForm() {
               <Label htmlFor="name">Nombre</Label>
               <Input
                 id="name"
-                placeholder="Tu nombre"
+                placeholder="Nombre del gimnasio"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="ci">Carnet</Label>
-              <Input
-                id="ci"
-                placeholder="Tu carnet"
-                value={formData.ci}
-                onChange={handleChange}
-                type="number"
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="fecha_nacimiento">Fecha de nacimiento</Label>
-              <Input
-                id="fecha_nacimiento"
-                value={formData.fecha_nacimiento}
-                onChange={handleChange}
-                type="date"
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <input
-                id="email"
-                placeholder="Tu email"
-                value={user?.email || ""}
-                type="email"
-                disabled
-              />
-            </div>
-            <div className="flex gap-3">
-              <Link href="/dashboard/update-email">
-                <Button>Cambiar email</Button>
-              </Link>
-              <Link href="/dashboard/reset-password">
-                <Button>Cambiar contraseña</Button>
-              </Link>
+              {/* Añadir labels "Abre" y "Cierra" arriba de las horas */}
+              <div className="flex justify-center font-semibold">
+                <span className="mt-4 md:mb-2">Horarios</span>
+              </div>
+              {/* Renderizar las horas de apertura y cierre */}
+              {weekdays.map((day) => {
+                const { open, close } = formData.gym_hours[day];
+                return (
+                  <div key={day} className="flex items-center">
+                    <Label
+                      htmlFor={`${day}-open`}
+                      className="w-1/4 mr-4 md:mr-20"
+                    >
+                      {weekdayTranslations[day]}{" "}
+                      {/* Muestra el día en español */}
+                    </Label>
+                    <Input
+                      id={`${day}-open`}
+                      type="time"
+                      value={open}
+                      onChange={(e) => handleChange(e, day, "open")}
+                    />
+                    <Label htmlFor={`${day}-close`} className="mx-1 md:mx-3">
+                      -
+                    </Label>
+                    <Input
+                      id={`${day}-close`}
+                      type="time"
+                      value={close}
+                      onChange={(e) => handleChange(e, day, "close")}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         </form>

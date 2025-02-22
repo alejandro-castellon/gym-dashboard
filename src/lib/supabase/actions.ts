@@ -233,3 +233,59 @@ export const updateProfile = async (formData: FormData) => {
     "Perfil actualizado correctamente"
   );
 };
+
+export const updateGymData = async (formData: FormData) => {
+  const supabase = await createClient();
+  const name = formData.get("name")?.toString();
+
+  // Obtener los horarios de apertura y cierre
+  const gym_hours = [...formData.entries()]
+    .filter(([key]) => key.endsWith("_open") || key.endsWith("_close"))
+    .reduce((acc, [key, value]) => {
+      const [day, type] = key.split("_");
+      if (!acc[day]) acc[day] = { open: "", close: "" };
+      acc[day][type as "open" | "close"] = value.toString() ?? "";
+      return acc;
+    }, {} as Record<string, { open: string; close: string }>);
+
+  // Validar campos
+  if (!name || Object.keys(gym_hours).length === 0) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/settings",
+      "Todos los campos son obligatorios"
+    );
+  }
+
+  // Obtener el usuario autenticado
+  const { data: user, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/settings",
+      "Usuario no encontrado"
+    );
+  }
+
+  // Actualizar el gimnasio en la base de datos
+  const { error } = await supabase
+    .from("gyms")
+    .update({ name, hours: gym_hours })
+    .contains("admin_ids", [user.user.id])
+    .single();
+
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard/settings",
+      "No se pudo actualizar los datos"
+    );
+  }
+
+  return encodedRedirect(
+    "success",
+    "/dashboard/settings",
+    "Gimnasio actualizado correctamente"
+  );
+};

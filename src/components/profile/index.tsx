@@ -108,12 +108,12 @@ export default function ProfileData() {
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <input
+              <Input
                 id="email"
                 placeholder="Tu email"
                 value={user?.email || ""}
                 type="email"
-                disabled
+                readOnly
               />
             </div>
             <div className="flex gap-3">

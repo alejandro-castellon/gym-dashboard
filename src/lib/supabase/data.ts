@@ -10,18 +10,14 @@ export const getUserGyms = async () => {
   }
 
   // Obtener los gimnasios del usuario
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("gyms")
     .select("*")
-    .eq("user_id", user.user.id)
-    .single();
+    .contains("admin_ids", [user.user.id])
+    .single(); // Verifica si el usuario está en admin_ids
 
-  if (!data) {
+  if (!data || data.length === 0) {
     return null;
-  }
-
-  if (error) {
-    throw new Error(`Error al obtener los gimnasios: ${error.message}`);
   }
 
   return data;
