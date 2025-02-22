@@ -36,7 +36,7 @@ export const getUserMembership = async () => {
   const { data, error } = await supabase
     .from("memberships")
     .select("*, gyms(name)")
-    .eq("user_id", user.user.id)
+    .eq("user_email", user.user.email)
     .single();
 
   if (!data) {
@@ -45,6 +45,38 @@ export const getUserMembership = async () => {
 
   if (error) {
     throw new Error(`Error al obtener la membresía: ${error.message}`);
+  }
+
+  return data; // Aquí obtendrás la membresía con el nombre del gimnasio
+};
+
+export const getGymMemberships = async () => {
+  const supabase = await createClient();
+
+  // Obtener el usuario autenticado
+  const { data: user, error: userError } = await supabase.auth.getUser();
+  if (userError || !user?.user) {
+    throw new Error("Usuario no autenticado");
+  }
+
+  const { data: gym, error: gymError } = await supabase
+    .from("gyms")
+    .select("id")
+    .contains("admin_ids", [user.user.id])
+    .single();
+  if (gymError || !gym.id) {
+    throw new Error("Gym no encontrado");
+  }
+
+  // Obtener la membresía del usuario
+  const { data } = await supabase
+    .from("memberships")
+    .select("*, users(name, ci, email)")
+    .eq("gym_id", gym.id);
+
+  console.log(data);
+  if (!data) {
+    return null;
   }
 
   return data; // Aquí obtendrás la membresía con el nombre del gimnasio
