@@ -290,6 +290,49 @@ export const updateGymData = async (formData: FormData) => {
   );
 };
 
+export const createUserInSupabaseAuth = async (email: string) => {
+  const supabase = await createClient();
+  const password = "12345678";
+  const origin = (await headers()).get("origin");
+
+  if (!email) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Email es requerido"
+    );
+  }
+
+  const { error, data } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/api/auth/callback`,
+    },
+  });
+
+  if (error) {
+    console.error(error.code + " " + error.message);
+    return encodedRedirect("error", "/dashboard/add-client", error.message);
+  } else if (
+    data.user &&
+    data.user.identities &&
+    data.user.identities.length == 0
+  ) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Ya existe un usuario con este correo."
+    );
+  } else {
+    return encodedRedirect(
+      "success",
+      "/dashboard/add-client",
+      "Usuario creado correctamente."
+    );
+  }
+};
+
 export const createMembership = async (formData: FormData) => {
   const supabase = await createClient();
 

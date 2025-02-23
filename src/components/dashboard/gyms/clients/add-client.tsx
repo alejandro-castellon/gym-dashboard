@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createMembership } from "@/lib/supabase/actions";
+import {
+  createUserInSupabaseAuth,
+  createMembership,
+} from "@/lib/supabase/actions";
+import { IconUserPlus } from "@tabler/icons-react"; // Importa un ícono, puedes cambiarlo según lo desees
 
 export default function AddClientForm() {
   const initialFormData = {
@@ -44,13 +48,28 @@ export default function AddClientForm() {
     setIsChanged(false);
   };
 
+  // Lógica para crear usuario
+  const handleCreateUser = async () => {
+    if (formData.email) await createUserInSupabaseAuth(formData.email);
+  };
+
   return (
     <div>
       <CardContent>
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email">Email</Label>
+                <Button
+                  type="button"
+                  onClick={handleCreateUser}
+                  disabled={!formData.email}
+                  size="sm"
+                >
+                  <IconUserPlus />
+                </Button>
+              </div>
               <Input
                 id="email"
                 placeholder="Introduce el email"

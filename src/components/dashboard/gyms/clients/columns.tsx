@@ -15,6 +15,21 @@ import { Membership } from "@/types";
 
 export const columns: ColumnDef<Membership>[] = [
   {
+    accessorKey: "user_email",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="pl-0"
+        >
+          Email
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => {
       return (
@@ -29,21 +44,6 @@ export const columns: ColumnDef<Membership>[] = [
       );
     },
     accessorFn: (row) => row.users?.name,
-  },
-  {
-    accessorKey: "user_email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="pl-0"
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
   },
   {
     accessorKey: "ci",
