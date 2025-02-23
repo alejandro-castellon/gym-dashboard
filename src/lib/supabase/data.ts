@@ -71,7 +71,7 @@ export const getGymMemberships = async () => {
   // Obtener la membresía del usuario
   const { data } = await supabase
     .from("memberships")
-    .select("*, users:users(name, ci, email)")
+    .select("*, users:users(name, ci)")
     .eq("gym_id", gym.id);
 
   if (!data) {

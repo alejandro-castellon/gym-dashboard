@@ -1,76 +1,47 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUser } from "@/context/UserContext";
-import { updateProfile } from "@/lib/supabase/actions";
-import Link from "next/link";
+import { createMembership } from "@/lib/supabase/actions";
 
 export default function AddClientForm() {
-  const { user } = useUser();
-
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    ci: user?.ci || "",
-    fecha_nacimiento: user?.fecha_nacimiento || "",
-  });
-
-  const [initialData, setInitialData] = useState(formData);
+  const initialFormData = {
+    email: "",
+    start_date: "",
+    end_date: "",
+    price: "",
+  };
+  const [formData, setFormData] = useState(initialFormData);
   const [isChanged, setIsChanged] = useState(false);
-
-  useEffect(() => {
-    setFormData({
-      name: user?.name || "",
-      ci: user?.ci || "",
-      fecha_nacimiento: user?.fecha_nacimiento || "",
-    });
-    setInitialData({
-      name: user?.name || "",
-      ci: user?.ci || "",
-      fecha_nacimiento: user?.fecha_nacimiento || "",
-    });
-  }, [user]);
 
   // Maneja los cambios en los campos
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
-
-  // Detecta si hay cambios
-  useEffect(() => {
+    const updatedFormData = { ...formData, [id]: value };
+    setFormData(updatedFormData);
     setIsChanged(
-      formData.name !== initialData.name ||
-        formData.ci !== initialData.ci ||
-        formData.fecha_nacimiento !== initialData.fecha_nacimiento
+      JSON.stringify(updatedFormData) !== JSON.stringify(initialFormData)
     );
-  }, [formData, initialData]);
+  };
 
   // Restablece los valores iniciales
   const handleCancel = () => {
-    setFormData(initialData);
+    setFormData(initialFormData);
+    setIsChanged(false);
   };
 
   // Lógica para guardar los datos
   const handleSave = () => {
     const formDataToSubmit = new FormData();
-    formDataToSubmit.append("name", formData.name);
-    formDataToSubmit.append("ci", formData.ci);
-    formDataToSubmit.append("fecha_nacimiento", formData.fecha_nacimiento);
-
-    // Guardar los datos
-    updateProfile(formDataToSubmit);
-
-    // Actualizar los datos iniciales y cambiar el estado
-    setInitialData(formData);
+    formDataToSubmit.append("email", formData.email);
+    formDataToSubmit.append("start_date", formData.start_date);
+    formDataToSubmit.append("end_date", formData.end_date);
+    formDataToSubmit.append("price", formData.price);
+    createMembership(formDataToSubmit);
+    setFormData(initialFormData);
     setIsChanged(false);
-
-    // Esperar un poco antes de recargar la página para asegurarse de que los datos estén guardados
-    setTimeout(() => {
-      window.location.reload();
-    }, 500); // 500ms de espera (ajusta el tiempo según necesites)
   };
 
   return (
@@ -79,50 +50,47 @@ export default function AddClientForm() {
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Nombre</Label>
-              <Input
-                id="name"
-                placeholder="Tu nombre"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="ci">Carnet</Label>
-              <Input
-                id="ci"
-                placeholder="Tu carnet"
-                value={formData.ci}
-                onChange={handleChange}
-                type="number"
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="fecha_nacimiento">Fecha de nacimiento</Label>
-              <Input
-                id="fecha_nacimiento"
-                value={formData.fecha_nacimiento}
-                onChange={handleChange}
-                type="date"
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <input
+              <Input
                 id="email"
-                placeholder="Tu email"
-                value={user?.email || ""}
+                placeholder="Introduce el email"
+                onChange={handleChange}
+                value={formData.email}
                 type="email"
-                disabled
+                required
               />
             </div>
-            <div className="flex gap-3">
-              <Link href="/dashboard/update-email">
-                <Button>Cambiar email</Button>
-              </Link>
-              <Link href="/dashboard/reset-password">
-                <Button>Cambiar contraseña</Button>
-              </Link>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="start_date">Fecha de inicio</Label>
+              <Input
+                id="start_date"
+                onChange={handleChange}
+                value={formData.start_date}
+                type="date"
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="end_date">Fecha de finalización</Label>
+              <Input
+                id="end_date"
+                onChange={handleChange}
+                value={formData.end_date}
+                type="date"
+                required
+              />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="price">Precio</Label>
+              <Input
+                id="price"
+                type="number"
+                placeholder="Precio"
+                step="0.01"
+                onChange={handleChange}
+                value={formData.price}
+                required
+              />
             </div>
           </div>
         </form>

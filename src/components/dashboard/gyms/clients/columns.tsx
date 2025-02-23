@@ -31,7 +31,7 @@ export const columns: ColumnDef<Membership>[] = [
     accessorFn: (row) => row.users?.name,
   },
   {
-    accessorKey: "email",
+    accessorKey: "user_email",
     header: ({ column }) => {
       return (
         <Button
@@ -44,7 +44,6 @@ export const columns: ColumnDef<Membership>[] = [
         </Button>
       );
     },
-    accessorFn: (row) => row.users?.email,
   },
   {
     accessorKey: "ci",
@@ -58,7 +57,7 @@ export const columns: ColumnDef<Membership>[] = [
   },
   {
     accessorKey: "start_date",
-    header: "Fecha de inicio",
+    header: "Fecha de inscripción",
   },
   {
     accessorKey: "end_date",

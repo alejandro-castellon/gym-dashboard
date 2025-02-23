@@ -289,3 +289,70 @@ export const updateGymData = async (formData: FormData) => {
     "Gimnasio actualizado correctamente"
   );
 };
+
+export const createMembership = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const email = formData.get("email")?.toString();
+  const start_date = formData.get("start_date")?.toString();
+  const end_date = formData.get("end_date")?.toString();
+  const price = formData.get("price")?.toString();
+
+  // Validar campos
+  if (!email || !start_date || !end_date || !price) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Todos los campos son obligatorios"
+    );
+  }
+
+  // Obtener el usuario autenticado (admin)
+  const { data: authUser, error: authUserError } =
+    await supabase.auth.getUser();
+  if (authUserError || !authUser?.user) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Usuario administrador no autenticado"
+    );
+  }
+
+  // Obtener el gimnasio del administrador
+  const { data: gym, error: gymError } = await supabase
+    .from("gyms")
+    .select("id")
+    .contains("admin_ids", [authUser.user.id])
+    .single();
+  if (gymError || !gym) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "No se encontró el gimnasio del administrador"
+    );
+  }
+
+  // Insertar la membresía
+  const { error: insertError } = await supabase.from("memberships").insert({
+    user_email: email,
+    gym_id: gym.id,
+    start_date,
+    end_date,
+    price: parseFloat(price),
+  });
+
+  if (insertError) {
+    console.error(insertError.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "No se pudo crear la membresía"
+    );
+  }
+
+  return encodedRedirect(
+    "success",
+    "/dashboard/add-client",
+    "Membresía creada correctamente"
+  );
+};

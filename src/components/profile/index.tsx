@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,27 +11,32 @@ import Link from "next/link";
 export default function ProfileData() {
   const { user } = useUser();
 
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    ci: user?.ci || "",
-    fecha_nacimiento: user?.fecha_nacimiento || "",
-  });
+  // Usamos useMemo para evitar que initialState se recalule en cada render
+  const initialState = useMemo(
+    () => ({
+      name: user?.name || "",
+      ci: user?.ci || "",
+      fecha_nacimiento: user?.fecha_nacimiento || "",
+    }),
+    [user]
+  );
 
-  const [initialData, setInitialData] = useState(formData);
+  const [formData, setFormData] = useState(initialState);
   const [isChanged, setIsChanged] = useState(false);
 
+  // Actualiza los valores al cambiar el usuario
   useEffect(() => {
-    setFormData({
-      name: user?.name || "",
-      ci: user?.ci || "",
-      fecha_nacimiento: user?.fecha_nacimiento || "",
-    });
-    setInitialData({
-      name: user?.name || "",
-      ci: user?.ci || "",
-      fecha_nacimiento: user?.fecha_nacimiento || "",
-    });
-  }, [user]);
+    setFormData(initialState);
+  }, [initialState]); // Usamos initialState como dependencia
+
+  // Detecta si hay cambios
+  useEffect(() => {
+    setIsChanged(
+      formData.name !== initialState.name ||
+        formData.ci !== initialState.ci ||
+        formData.fecha_nacimiento !== initialState.fecha_nacimiento
+    );
+  }, [formData, initialState]); // Aseguramos que ambas dependencias estén presentes
 
   // Maneja los cambios en los campos
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,19 +44,8 @@ export default function ProfileData() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Detecta si hay cambios
-  useEffect(() => {
-    setIsChanged(
-      formData.name !== initialData.name ||
-        formData.ci !== initialData.ci ||
-        formData.fecha_nacimiento !== initialData.fecha_nacimiento
-    );
-  }, [formData, initialData]);
-
   // Restablece los valores iniciales
-  const handleCancel = () => {
-    setFormData(initialData);
-  };
+  const handleCancel = () => setFormData(initialState);
 
   // Lógica para guardar los datos
   const handleSave = () => {
@@ -60,17 +54,11 @@ export default function ProfileData() {
     formDataToSubmit.append("ci", formData.ci);
     formDataToSubmit.append("fecha_nacimiento", formData.fecha_nacimiento);
 
-    // Guardar los datos
     updateProfile(formDataToSubmit);
-
-    // Actualizar los datos iniciales y cambiar el estado
-    setInitialData(formData);
     setIsChanged(false);
-
-    // Esperar un poco antes de recargar la página para asegurarse de que los datos estén guardados
     setTimeout(() => {
       window.location.reload();
-    }, 500); // 500ms de espera (ajusta el tiempo según necesites)
+    }, 500);
   };
 
   return (
