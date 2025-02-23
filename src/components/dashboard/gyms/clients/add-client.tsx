@@ -8,7 +8,7 @@ import {
   createUserInSupabaseAuth,
   createMembership,
 } from "@/lib/supabase/actions";
-import { IconUserPlus } from "@tabler/icons-react"; // Importa un ícono, puedes cambiarlo según lo desees
+import { IconUserPlus } from "@tabler/icons-react";
 
 export default function AddClientForm() {
   const initialFormData = {
@@ -79,25 +79,31 @@ export default function AddClientForm() {
                 required
               />
             </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="start_date">Fecha de inicio</Label>
-              <Input
-                id="start_date"
-                onChange={handleChange}
-                value={formData.start_date}
-                type="date"
-                required
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="end_date">Fecha de finalización</Label>
-              <Input
-                id="end_date"
-                onChange={handleChange}
-                value={formData.end_date}
-                type="date"
-                required
-              />
+            <div className="flex md:space-x-10">
+              <div className="mr-2">
+                <Label htmlFor="start_date">Fecha de inicio</Label>
+                <Input
+                  id="start_date"
+                  onChange={handleChange}
+                  value={formData.start_date}
+                  type="date"
+                  className="pr-1 md:pr-3"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="end_date" className="ml-1">
+                  Fecha de finalización
+                </Label>
+                <Input
+                  id="end_date"
+                  onChange={handleChange}
+                  value={formData.end_date}
+                  type="date"
+                  className="pr-1 md:pr-3"
+                  required
+                />
+              </div>
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="price">Precio</Label>

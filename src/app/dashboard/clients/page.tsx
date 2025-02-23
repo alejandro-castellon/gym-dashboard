@@ -16,9 +16,7 @@ export default async function Page() {
   return (
     <main>
       <h1 className="text-2xl font-medium">Clientes</h1>
-      <Suspense
-        fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}
-      >
+      <Suspense fallback={<Skeleton className="h-1/2 w-full rounded-xl" />}>
         <DataTable columns={columns} data={memberships} />
       </Suspense>
     </main>

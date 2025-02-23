@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import NavLinks from "./navlinks";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useUser } from "@/context/UserContext";
 
 export default function Sidenav() {
@@ -26,13 +26,10 @@ export default function Sidenav() {
               label: open ? userLabel : "", // Muestra el nombre solo si está abierto
               href: "/dashboard/profile",
               icon: (
-                <Image
-                  src="https://assets.aceternity.com/manu.png"
-                  className="h-7 w-7 flex-shrink-0 rounded-full"
-                  width={50}
-                  height={50}
-                  alt="Avatar"
-                />
+                <Avatar>
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
               ),
             }}
           />

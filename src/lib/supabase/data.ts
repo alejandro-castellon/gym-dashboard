@@ -36,7 +36,7 @@ export const getUserMembership = async () => {
   const { data, error } = await supabase
     .from("memberships")
     .select("*, gyms(name)")
-    .eq("user_id", user.user.id)
+    .eq("user_email", user.user.email)
     .single();
 
   if (!data) {
