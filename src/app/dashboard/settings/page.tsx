@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FormMessage, Message } from "@/components/auth/form-message";
-import { Skeleton } from "@/components/ui/skeleton";
+import SettingsDataSkeleton from "@/components/settings/skeleton";
 
 export const metadata: Metadata = {
   title: "Configuración",
@@ -25,9 +25,7 @@ export default async function page(props: { searchParams: Promise<Message> }) {
         <CardDescription>Edita la información de tu gimnasio.</CardDescription>
       </CardHeader>
 
-      <Suspense
-        fallback={<Skeleton className="h-60 w-6/7 rounded-lg ml-4 mr-4" />}
-      >
+      <Suspense fallback={<SettingsDataSkeleton />}>
         <SettingsForm />
       </Suspense>
 

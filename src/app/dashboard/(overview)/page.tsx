@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import MembershipDashboard from "@/components/dashboard/memberships";
 import GymDashboard from "@/components/dashboard/gyms";
 import { getUserRole } from "@/lib/supabase/data";
-import { Skeleton } from "@/components/ui/skeleton";
+import GymDashboardSkeleton from "@/components/dashboard/gyms/skeleton";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -21,10 +21,8 @@ async function RoleBasedData() {
 export default function DashboardPage() {
   return (
     <div>
-      <h1 className="text-2xl font-medium">Dashboard</h1>
-      <Suspense
-        fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}
-      >
+      <h1 className="text-2xl font-medium mb-4">Dashboard</h1>
+      <Suspense fallback={<GymDashboardSkeleton />}>
         <RoleBasedData />
       </Suspense>
     </div>
