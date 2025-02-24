@@ -5,7 +5,7 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateGymData } from "@/lib/supabase/actions";
-import { createClient } from "@/lib/supabase/client";
+import { Gym } from "@/types";
 import { useUser } from "@/context/UserContext";
 
 type Weekday =
@@ -17,7 +17,6 @@ type Weekday =
   | "saturday"
   | "sunday";
 
-// Mapeo de los días en inglés a español
 const weekdayTranslations: Record<Weekday, string> = {
   monday: "Lunes",
   tuesday: "Martes",
@@ -38,50 +37,32 @@ const weekdays: Weekday[] = [
   "sunday",
 ];
 
-export default function SettingsForm() {
-  const supabase = createClient();
-  const { user } = useUser();
-  const [formData, setFormData] = useState({
-    name: "",
-    gym_hours: {
-      monday: { open: "", close: "" },
-      tuesday: { open: "", close: "" },
-      wednesday: { open: "", close: "" },
-      thursday: { open: "", close: "" },
-      friday: { open: "", close: "" },
-      saturday: { open: "", close: "" },
-      sunday: { open: "", close: "" },
-    },
-  });
+interface SettingsFormProps {
+  data: Gym;
+}
+
+export default function SettingsData({ data }: SettingsFormProps) {
+  const [formData, setFormData] = useState<Gym>(
+    data || {
+      name: "",
+      gym_hours: {
+        monday: { open: "", close: "" },
+        tuesday: { open: "", close: "" },
+        wednesday: { open: "", close: "" },
+        thursday: { open: "", close: "" },
+        friday: { open: "", close: "" },
+        saturday: { open: "", close: "" },
+        sunday: { open: "", close: "" },
+      },
+    }
+  );
   const [initialData, setInitialData] = useState(formData);
   const [isChanged, setIsChanged] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
-    const fetchGym = async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from("gyms")
-          .select("*")
-          .contains("admin_ids", [user.id])
-          .single();
-
-        if (error) {
-          console.error("Error al obtener los gimnasios:", error);
-        } else if (data) {
-          setFormData({
-            name: data.name,
-            gym_hours: data.hours,
-          });
-          setInitialData({
-            name: data.name,
-            gym_hours: data.hours,
-          });
-        }
-      }
-    };
-
-    fetchGym();
-  }, [user, supabase]);
+    setIsChanged(JSON.stringify(formData) !== JSON.stringify(initialData));
+  }, [formData, initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -92,15 +73,11 @@ export default function SettingsForm() {
     setFormData((prev) => ({
       ...prev,
       gym_hours: {
-        ...prev.gym_hours,
-        [day]: { ...prev.gym_hours[day], [type]: value },
+        ...prev.hours,
+        [day]: { ...prev.hours[day], [type]: value },
       },
     }));
   };
-
-  useEffect(() => {
-    setIsChanged(JSON.stringify(formData) !== JSON.stringify(initialData));
-  }, [formData, initialData]);
 
   const handleCancel = () => {
     setFormData(initialData);
@@ -111,10 +88,11 @@ export default function SettingsForm() {
 
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("name", formData.name);
-    Object.entries(formData.gym_hours).forEach(([day, hours]) => {
+    Object.entries(formData.hours).forEach(([day, hours]) => {
       formDataToSubmit.append(`${day}_open`, hours.open);
       formDataToSubmit.append(`${day}_close`, hours.close);
     });
+    formDataToSubmit.append("id", user?.id || "");
     updateGymData(formDataToSubmit);
     setInitialData(formData);
     setIsChanged(false);
@@ -135,21 +113,18 @@ export default function SettingsForm() {
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
-              {/* Añadir labels "Abre" y "Cierra" arriba de las horas */}
               <div className="flex justify-center font-semibold">
                 <span className="mt-4 md:mb-2">Horarios</span>
               </div>
-              {/* Renderizar las horas de apertura y cierre */}
               {weekdays.map((day) => {
-                const { open, close } = formData.gym_hours[day];
+                const { open, close } = formData.hours[day];
                 return (
                   <div key={day} className="flex items-center">
                     <Label
                       htmlFor={`${day}-open`}
                       className="w-1/4 mr-4 md:mr-20"
                     >
-                      {weekdayTranslations[day]}{" "}
-                      {/* Muestra el día en español */}
+                      {weekdayTranslations[day]}
                     </Label>
                     <Input
                       id={`${day}-open`}

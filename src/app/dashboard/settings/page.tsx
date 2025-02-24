@@ -1,6 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
-import SettingsForm from "@/components/dashboard/gyms/settings";
+import SettingsForm from "@/components/settings";
 import {
   Card,
   CardDescription,

@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@/types";
 
@@ -13,62 +19,68 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<UserContextType>({
+    user: null,
+    isAdmin: false,
+    loading: true,
+  });
 
-  useEffect(() => {
+  const fetchUser = useCallback(async () => {
     const supabase = createClient();
+    const controller = new AbortController();
 
-    const fetchUser = async () => {
-      try {
-        setLoading(true);
+    try {
+      setState((prev) => ({ ...prev, loading: true }));
 
-        // Obtener el usuario autenticado
-        const { data: authData } = await supabase.auth.getUser();
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData?.user) {
+        const { data: userData } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", authData.user.id)
+          .single();
 
-        if (authData?.user) {
-          // Obtener datos adicionales del usuario usando su ID
-          const { data: userData } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", authData.user.id)
-            .single();
-
-          if (userData) {
-            setUser({
+        if (userData) {
+          setState({
+            user: {
               id: authData.user.id,
               email: authData.user.email ?? "",
               name: userData.name ?? "",
               ci: userData.ci ?? "",
               fecha_nacimiento: userData.fecha_nacimiento ?? "",
               created_at: userData.created_at,
-            });
-            setIsAdmin(userData.admin || false);
-          } else {
-            setUser(null);
-            setIsAdmin(false);
-          }
+            },
+            isAdmin: userData.admin || false,
+            loading: false,
+          });
         } else {
-          setUser(null);
-          setIsAdmin(false);
+          setState({ user: null, isAdmin: false, loading: false });
         }
-      } catch (error) {
-        console.error("Error al obtener el usuario:", error);
-      } finally {
-        setLoading(false);
+      } else {
+        setState({ user: null, isAdmin: false, loading: false });
       }
-    };
+    } catch (error) {
+      console.error("Error al obtener el usuario:", error);
+      setState((prev) => ({ ...prev, loading: false }));
+    }
 
-    // Llamar al cargar el componente
-    fetchUser();
+    return () => controller.abort();
   }, []);
 
-  return (
-    <UserContext.Provider value={{ user, isAdmin, loading }}>
-      {children}
-    </UserContext.Provider>
-  );
+  useEffect(() => {
+    fetchUser();
+
+    const supabase = createClient();
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      fetchUser();
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, [fetchUser]);
+
+  return <UserContext.Provider value={state}>{children}</UserContext.Provider>;
 }
 
 export function useUser() {

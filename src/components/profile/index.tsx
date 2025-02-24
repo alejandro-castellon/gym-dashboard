@@ -53,7 +53,7 @@ export default function ProfileData() {
     formDataToSubmit.append("name", formData.name);
     formDataToSubmit.append("ci", formData.ci);
     formDataToSubmit.append("fecha_nacimiento", formData.fecha_nacimiento);
-
+    formDataToSubmit.append("id", user?.id || "");
     updateProfile(formDataToSubmit);
     setIsChanged(false);
     setTimeout(() => {

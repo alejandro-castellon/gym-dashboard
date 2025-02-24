@@ -1,12 +1,8 @@
-"use client";
-
 import { Gym } from "@/types";
+import { getUserGyms } from "@/lib/supabase/data";
 
-interface DashboardProps {
-  gym: Gym | null;
-}
-
-export default function GymDashboard({ gym }: DashboardProps) {
+export default async function GymDashboard() {
+  const gym: Gym = await getUserGyms();
   if (gym) {
     return (
       <div className="flex flex-1">

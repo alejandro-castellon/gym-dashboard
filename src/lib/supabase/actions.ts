@@ -182,6 +182,7 @@ export const updateProfile = async (formData: FormData) => {
   const name = formData.get("name")?.toString();
   const ci = formData.get("ci")?.toString();
   const fecha_nacimiento = formData.get("fecha_nacimiento")?.toString();
+  const id = formData.get("id")?.toString();
 
   // Validar campos
   if (!name || !ci || !fecha_nacimiento) {
@@ -202,21 +203,11 @@ export const updateProfile = async (formData: FormData) => {
     );
   }
 
-  // Obtener el usuario autenticado
-  const { data: user, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/profile",
-      "Usuario no encontrado"
-    );
-  }
-
   // Actualizar el perfil en la base de datos
   const { error } = await supabase
     .from("users")
     .update({ name, ci, fecha_nacimiento: birthDate.toISOString() })
-    .eq("id", user.user.id);
+    .eq("id", id);
 
   if (error) {
     console.error(error.message);
@@ -237,7 +228,7 @@ export const updateProfile = async (formData: FormData) => {
 export const updateGymData = async (formData: FormData) => {
   const supabase = await createClient();
   const name = formData.get("name")?.toString();
-
+  const user_id = formData.get("id")?.toString();
   // Obtener los horarios de apertura y cierre
   const gym_hours = [...formData.entries()]
     .filter(([key]) => key.endsWith("_open") || key.endsWith("_close"))
@@ -257,21 +248,11 @@ export const updateGymData = async (formData: FormData) => {
     );
   }
 
-  // Obtener el usuario autenticado
-  const { data: user, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/settings",
-      "Usuario no encontrado"
-    );
-  }
-
   // Actualizar el gimnasio en la base de datos
   const { error } = await supabase
     .from("gyms")
     .update({ name, hours: gym_hours })
-    .contains("admin_ids", [user.user.id])
+    .contains("admin_ids", [user_id])
     .single();
 
   if (error) {
@@ -340,6 +321,7 @@ export const createMembership = async (formData: FormData) => {
   const start_date = formData.get("start_date")?.toString();
   const end_date = formData.get("end_date")?.toString();
   const price = formData.get("price")?.toString();
+  const user_id = formData.get("user_id")?.toString();
 
   // Validar campos
   if (!email || !start_date || !end_date || !price) {
@@ -350,22 +332,11 @@ export const createMembership = async (formData: FormData) => {
     );
   }
 
-  // Obtener el usuario autenticado (admin)
-  const { data: authUser, error: authUserError } =
-    await supabase.auth.getUser();
-  if (authUserError || !authUser?.user) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/add-client",
-      "Usuario administrador no autenticado"
-    );
-  }
-
   // Obtener el gimnasio del administrador
   const { data: gym, error: gymError } = await supabase
     .from("gyms")
     .select("id")
-    .contains("admin_ids", [authUser.user.id])
+    .contains("admin_ids", [user_id])
     .single();
   if (gymError || !gym) {
     return encodedRedirect(

@@ -58,10 +58,6 @@
     --chart-5: 340 75% 55%;
   }
 }
-input[type="time"]::-webkit-calendar-picker-indicator {
-  display: none;
-  -webkit-appearance: none;
-}
 
 @layer base {
   * {

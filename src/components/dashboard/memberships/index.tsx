@@ -1,12 +1,8 @@
-"use client";
-
 import { Membership } from "@/types";
+import { getUserMembership } from "@/lib/supabase/data";
 
-interface DashboardProps {
-  membership: Membership | null;
-}
-
-export default function MembershipDashboard({ membership }: DashboardProps) {
+export default async function MembershipDashboard() {
+  const membership: Membership = await getUserMembership();
   if (membership) {
     return (
       <div className="flex flex-1">

@@ -1,6 +1,5 @@
-import React from "react";
 import { Metadata } from "next";
-import AddClientForm from "@/components/dashboard/gyms/clients/add-client";
+import AddClientForm from "@/components/clients/add-client-form";
 import {
   Card,
   CardDescription,

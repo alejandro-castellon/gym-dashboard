@@ -9,6 +9,7 @@ import {
   createMembership,
 } from "@/lib/supabase/actions";
 import { IconUserPlus } from "@tabler/icons-react";
+import { useUser } from "@/context/UserContext";
 
 export default function AddClientForm() {
   const initialFormData = {
@@ -19,6 +20,7 @@ export default function AddClientForm() {
   };
   const [formData, setFormData] = useState(initialFormData);
   const [isChanged, setIsChanged] = useState(false);
+  const { user } = useUser();
 
   // Maneja los cambios en los campos
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +45,7 @@ export default function AddClientForm() {
     formDataToSubmit.append("start_date", formData.start_date);
     formDataToSubmit.append("end_date", formData.end_date);
     formDataToSubmit.append("price", formData.price);
+    formDataToSubmit.append("user_id", user?.id || "");
     createMembership(formDataToSubmit);
     setFormData(initialFormData);
     setIsChanged(false);

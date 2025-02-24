@@ -1,23 +1,18 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import { columns } from "@/components/dashboard/gyms/clients/columns";
-import { DataTable } from "@/components/dashboard/gyms/clients/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getGymMemberships } from "@/lib/supabase/data";
-import { Membership } from "@/types";
+import MembershipTable from "@/components/clients/get-data";
 
 export const metadata: Metadata = {
   title: "Clientes",
 };
 
 export default async function Page() {
-  const memberships: Membership[] = (await getGymMemberships()) || [];
-
   return (
     <main>
       <h1 className="text-2xl font-medium">Clientes</h1>
-      <Suspense fallback={<Skeleton className="h-1/2 w-full rounded-xl" />}>
-        <DataTable columns={columns} data={memberships} />
+      <Suspense fallback={<Skeleton className="mt-8 h-96 w-full rounded-xl" />}>
+        <MembershipTable />
       </Suspense>
     </main>
   );
