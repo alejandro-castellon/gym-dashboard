@@ -20,6 +20,7 @@ export interface Gym {
   created_at: string; // Fecha de creación del gimnasio en formato ISO
   user_id: string; // ID del usuario (propietario o administrador)
   hours: GymHours; // Horario de apertura y cierre del gimnasio
+  price: number; // Precio de la membresía
 }
 
 export interface Membership {

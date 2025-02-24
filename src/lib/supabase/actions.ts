@@ -229,6 +229,7 @@ export const updateGymData = async (formData: FormData) => {
   const supabase = await createClient();
   const name = formData.get("name")?.toString();
   const user_id = formData.get("id")?.toString();
+  const price = formData.get("price")?.toString();
   // Obtener los horarios de apertura y cierre
   const gym_hours = [...formData.entries()]
     .filter(([key]) => key.endsWith("_open") || key.endsWith("_close"))
@@ -240,7 +241,7 @@ export const updateGymData = async (formData: FormData) => {
     }, {} as Record<string, { open: string; close: string }>);
 
   // Validar campos
-  if (!name || Object.keys(gym_hours).length === 0) {
+  if (!name || !price || Object.keys(gym_hours).length === 0) {
     return encodedRedirect(
       "error",
       "/dashboard/settings",
@@ -251,7 +252,7 @@ export const updateGymData = async (formData: FormData) => {
   // Actualizar el gimnasio en la base de datos
   const { error } = await supabase
     .from("gyms")
-    .update({ name, hours: gym_hours })
+    .update({ name, hours: gym_hours, price })
     .contains("admin_ids", [user_id])
     .single();
 
@@ -321,10 +322,10 @@ export const createMembership = async (formData: FormData) => {
   const start_date = formData.get("start_date")?.toString();
   const end_date = formData.get("end_date")?.toString();
   const price = formData.get("price")?.toString();
-  const user_id = formData.get("user_id")?.toString();
+  const gym_id = formData.get("gym_id")?.toString();
 
   // Validar campos
-  if (!email || !start_date || !end_date || !price) {
+  if (!email || !start_date || !end_date || !price || !gym_id) {
     return encodedRedirect(
       "error",
       "/dashboard/add-client",
@@ -332,24 +333,37 @@ export const createMembership = async (formData: FormData) => {
     );
   }
 
-  // Obtener el gimnasio del administrador
-  const { data: gym, error: gymError } = await supabase
-    .from("gyms")
+  // Validar si ya existe una membresía para el mismo cliente y gimnasio en las mismas fechas
+  const { data: existingMemberships, error: membershipError } = await supabase
+    .from("memberships")
     .select("id")
-    .contains("admin_ids", [user_id])
-    .single();
-  if (gymError || !gym) {
+    .eq("user_email", email)
+    .eq("gym_id", gym_id)
+    .or(
+      `and(start_date.lte.${end_date}, end_date.gte.${start_date})` // Verificar solapamientos en cualquier parte del rango
+    );
+  if (membershipError) {
+    console.error(membershipError.message);
     return encodedRedirect(
       "error",
       "/dashboard/add-client",
-      "No se encontró el gimnasio del administrador"
+      "Error al verificar las membresías existentes"
+    );
+  }
+
+  // Si existe una membresía en las mismas fechas, retornar error
+  if (existingMemberships && existingMemberships.length > 0) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Ya existe una membresía para este cliente durante esas fechas"
     );
   }
 
   // Insertar la membresía
   const { error: insertError } = await supabase.from("memberships").insert({
     user_email: email,
-    gym_id: gym.id,
+    gym_id: gym_id,
     start_date,
     end_date,
     price: parseFloat(price),

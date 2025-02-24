@@ -69,11 +69,11 @@ export const columns: ColumnDef<Membership>[] = [
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price"));
       const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "BOB",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(amount);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return <div className="text-right font-medium">Bs {formatted}</div>;
     },
   },
   {

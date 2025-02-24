@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import AddClientForm from "@/components/clients/add-client-form";
+import AddClientForm from "@/components/add-client";
 import {
   Card,
   CardDescription,

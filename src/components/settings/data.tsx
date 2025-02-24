@@ -54,6 +54,7 @@ export default function SettingsData({ data }: SettingsFormProps) {
         saturday: { open: "", close: "" },
         sunday: { open: "", close: "" },
       },
+      price: 0,
     }
   );
   const [initialData, setInitialData] = useState(formData);
@@ -92,6 +93,7 @@ export default function SettingsData({ data }: SettingsFormProps) {
       formDataToSubmit.append(`${day}_open`, hours.open);
       formDataToSubmit.append(`${day}_close`, hours.close);
     });
+    formDataToSubmit.append("price", formData.price.toString());
     formDataToSubmit.append("id", user?.id || "");
     updateGymData(formDataToSubmit);
     setInitialData(formData);
@@ -113,6 +115,28 @@ export default function SettingsData({ data }: SettingsFormProps) {
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
+              <Label htmlFor="price" className="pt-4">
+                Precio de la membresia
+              </Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  Bs
+                </span>
+                <Input
+                  id="price"
+                  placeholder="0.0"
+                  value={formData.price}
+                  type="number"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      price: parseFloat(e.target.value),
+                    })
+                  }
+                  className="pl-8"
+                />
+              </div>
+
               <div className="flex justify-center font-semibold">
                 <span className="mt-4 md:mb-2">Horarios</span>
               </div>
