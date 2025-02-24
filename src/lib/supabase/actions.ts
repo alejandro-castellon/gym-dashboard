@@ -384,3 +384,32 @@ export const createMembership = async (formData: FormData) => {
     "Membresía creada correctamente"
   );
 };
+
+export const openGym = async (formData: FormData) => {
+  const supabase = await createClient();
+  const gym_id = formData.get("id")?.toString();
+  const open = formData.get("is_open")?.toString();
+
+  // Validar campos
+  if (!open) {
+    return encodedRedirect("error", "/dashboard", "Error");
+  }
+
+  // Actualizar el gimnasio en la base de datos
+  const { error } = await supabase
+    .from("gyms")
+    .update({ is_open: open })
+    .eq("id", gym_id)
+    .single();
+
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard",
+      "No se pudo abrir el gimnasio"
+    );
+  }
+
+  return encodedRedirect("success", "/dashboard", "Cambio correctamente");
+};

@@ -21,6 +21,7 @@ export interface Gym {
   user_id: string; // ID del usuario (propietario o administrador)
   hours: GymHours; // Horario de apertura y cierre del gimnasio
   price: number; // Precio de la membresía
+  is_open: boolean; // Indica si el gimnasio está abierto o cerrado
 }
 
 export interface Membership {
@@ -34,6 +35,8 @@ export interface Membership {
   gyms?: {
     // Información adicional sobre el gimnasio (opcional si no existe)
     name: string; // Nombre del gimnasio
+    hours: GymHours; // Horario de apertura y cierre del gimnasio
+    is_open: boolean; // Indica si el gimnasio está abierto o cerrado
   };
   users?: {
     // Información adicional sobre el usuario (opcional si no existe)

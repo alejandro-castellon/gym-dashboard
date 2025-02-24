@@ -11,6 +11,7 @@ import {
 import { HandCoins, UserCheck, UsersIcon } from "lucide-react";
 import { RecentClients } from "./recent-clients";
 import { Overview } from "./overview";
+import { OpenGymButton } from "./open-gym";
 
 export default async function GymDashboard() {
   const gym: Gym = await getUserGyms();
@@ -64,8 +65,9 @@ export default async function GymDashboard() {
   if (gym) {
     return (
       <div className="space-y-4">
-        <div className="text-xl font-semibold pb-4">
-          Mi gimnasio - {gym.name}
+        <div className="flex text-xl font-semibold py-4 space-x-4 items-center">
+          <div>Mi gimnasio - {gym.name}</div>
+          <OpenGymButton isOpen={gym.is_open} gymId={gym.id} />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {/* Membresías Activas */}
