@@ -45,7 +45,7 @@ export default function SettingsData({ data }: SettingsFormProps) {
   const [formData, setFormData] = useState<Gym>(
     data || {
       name: "",
-      gym_hours: {
+      hours: {
         monday: { open: "", close: "" },
         tuesday: { open: "", close: "" },
         wednesday: { open: "", close: "" },
@@ -72,7 +72,7 @@ export default function SettingsData({ data }: SettingsFormProps) {
     const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      gym_hours: {
+      hours: {
         ...prev.hours,
         [day]: { ...prev.hours[day], [type]: value },
       },

@@ -7,6 +7,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useUser } from "@/context/UserContext";
 
+// Componentes optimizados
+const MemoizedNavLinks = React.memo(NavLinks);
+
 export default function Sidenav() {
   const [open, setOpen] = useState(false);
   const { user } = useUser();
@@ -18,7 +21,7 @@ export default function Sidenav() {
       <SidebarBody>
         <div className="flex md:flex-col flex-1 overflow-y-auto overflow-x-hidden gap-8">
           {open ? <Logo /> : <LogoIcon />}
-          <NavLinks />
+          <MemoizedNavLinks />
         </div>
         <div>
           <SidebarLink
@@ -41,7 +44,7 @@ export default function Sidenav() {
 
 const Logo = () => (
   <Link
-    href="#"
+    href="/"
     className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
   >
     <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
@@ -57,7 +60,7 @@ const Logo = () => (
 
 const LogoIcon = () => (
   <Link
-    href="#"
+    href="/"
     className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
   >
     <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
