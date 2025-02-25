@@ -3,11 +3,13 @@ import { cn } from "@/lib/utils";
 import Link, { LinkProps } from "next/link";
 import React, { useState, createContext, useContext } from "react";
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 interface Links {
   label: string;
   href: string;
   icon: React.JSX.Element | React.ReactNode;
+  onClick?: () => void;
 }
 
 interface SidebarContextProps {
@@ -125,11 +127,13 @@ export const SidebarLink = ({
   className,
   ...props
 }: {
-  link: Links & { onClick?: () => void }; // Agregar `onClick` opcional
+  link: Links; // Agregar `onClick` opcional
   className?: string;
   props?: LinkProps;
 }) => {
   const { open, animate } = useSidebar();
+  const pathname = usePathname();
+  const isActive = pathname === link.href;
 
   // Si el link tiene un `onClick`, usar un `<button>`, sino un `<Link>`
   return link.onClick ? (
@@ -160,13 +164,19 @@ export const SidebarLink = ({
       )}
       {...props}
     >
-      {link.icon}
+      {React.isValidElement(link.icon) &&
+        React.cloneElement(link.icon as React.ReactElement<SVGElement>, {
+          className: cn("h-6 w-6 flex-shrink-0", isActive && "text-primary"),
+        })}
       <motion.span
         animate={{
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+        className={cn(
+          "text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0",
+          isActive && "text-primary dark:text-primary"
+        )}
       >
         {link.label}
       </motion.span>

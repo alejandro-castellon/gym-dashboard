@@ -1,11 +1,14 @@
 "use client";
 import React, { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import NavLinks from "./navlinks";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useUser } from "@/context/UserContext";
+
+// Componentes optimizados
+const MemoizedNavLinks = React.memo(NavLinks);
 
 export default function Sidenav() {
   const [open, setOpen] = useState(false);
@@ -18,7 +21,7 @@ export default function Sidenav() {
       <SidebarBody>
         <div className="flex md:flex-col flex-1 overflow-y-auto overflow-x-hidden gap-8">
           {open ? <Logo /> : <LogoIcon />}
-          <NavLinks />
+          <MemoizedNavLinks />
         </div>
         <div>
           <SidebarLink
@@ -26,13 +29,13 @@ export default function Sidenav() {
               label: open ? userLabel : "", // Muestra el nombre solo si está abierto
               href: "/dashboard/profile",
               icon: (
-                <Image
-                  src="https://assets.aceternity.com/manu.png"
-                  className="h-7 w-7 flex-shrink-0 rounded-full"
-                  width={50}
-                  height={50}
-                  alt="Avatar"
-                />
+                <Avatar>
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="Avatar"
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
               ),
             }}
           />
@@ -44,7 +47,7 @@ export default function Sidenav() {
 
 const Logo = () => (
   <Link
-    href="#"
+    href="/"
     className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
   >
     <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
@@ -60,7 +63,7 @@ const Logo = () => (
 
 const LogoIcon = () => (
   <Link
-    href="#"
+    href="/"
     className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
   >
     <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />

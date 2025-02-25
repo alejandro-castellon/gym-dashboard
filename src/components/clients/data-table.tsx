@@ -65,20 +65,38 @@ export function DataTable<TData, TValue>({
   return (
     <div className="mt-4">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={
-            (table.getColumn("user_email")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("user_email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
+          <Input
+            placeholder="Filtrar emails..."
+            value={
+              (table.getColumn("user_email")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("user_email")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm "
+          />
+          <Input
+            placeholder="Filtrar nombres..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <Input
+            placeholder="Filtrar CI..."
+            value={(table.getColumn("ci")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("ci")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns
+              Columnas
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -145,7 +163,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No hay resultados.
                 </TableCell>
               </TableRow>
             )}
@@ -159,7 +177,7 @@ export function DataTable<TData, TValue>({
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          Previous
+          Previo
         </Button>
         <Button
           variant="outline"
@@ -167,7 +185,7 @@ export function DataTable<TData, TValue>({
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          Next
+          Siguiente
         </Button>
       </div>
     </div>

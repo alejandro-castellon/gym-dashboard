@@ -182,6 +182,7 @@ export const updateProfile = async (formData: FormData) => {
   const name = formData.get("name")?.toString();
   const ci = formData.get("ci")?.toString();
   const fecha_nacimiento = formData.get("fecha_nacimiento")?.toString();
+  const id = formData.get("id")?.toString();
 
   // Validar campos
   if (!name || !ci || !fecha_nacimiento) {
@@ -202,21 +203,11 @@ export const updateProfile = async (formData: FormData) => {
     );
   }
 
-  // Obtener el usuario autenticado
-  const { data: user, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/profile",
-      "Usuario no encontrado"
-    );
-  }
-
   // Actualizar el perfil en la base de datos
   const { error } = await supabase
     .from("users")
     .update({ name, ci, fecha_nacimiento: birthDate.toISOString() })
-    .eq("id", user.user.id);
+    .eq("id", id);
 
   if (error) {
     console.error(error.message);
@@ -237,7 +228,8 @@ export const updateProfile = async (formData: FormData) => {
 export const updateGymData = async (formData: FormData) => {
   const supabase = await createClient();
   const name = formData.get("name")?.toString();
-
+  const user_id = formData.get("id")?.toString();
+  const price = formData.get("price")?.toString();
   // Obtener los horarios de apertura y cierre
   const gym_hours = [...formData.entries()]
     .filter(([key]) => key.endsWith("_open") || key.endsWith("_close"))
@@ -249,7 +241,7 @@ export const updateGymData = async (formData: FormData) => {
     }, {} as Record<string, { open: string; close: string }>);
 
   // Validar campos
-  if (!name || Object.keys(gym_hours).length === 0) {
+  if (!name || !price || Object.keys(gym_hours).length === 0) {
     return encodedRedirect(
       "error",
       "/dashboard/settings",
@@ -257,21 +249,11 @@ export const updateGymData = async (formData: FormData) => {
     );
   }
 
-  // Obtener el usuario autenticado
-  const { data: user, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/settings",
-      "Usuario no encontrado"
-    );
-  }
-
   // Actualizar el gimnasio en la base de datos
   const { error } = await supabase
     .from("gyms")
-    .update({ name, hours: gym_hours })
-    .contains("admin_ids", [user.user.id])
+    .update({ name, hours: gym_hours, price })
+    .contains("admin_ids", [user_id])
     .single();
 
   if (error) {
@@ -288,4 +270,146 @@ export const updateGymData = async (formData: FormData) => {
     "/dashboard/settings",
     "Gimnasio actualizado correctamente"
   );
+};
+
+export const createUserInSupabaseAuth = async (email: string) => {
+  const supabase = await createClient();
+  const password = "12345678";
+  const origin = (await headers()).get("origin");
+
+  if (!email) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Email es requerido"
+    );
+  }
+
+  const { error, data } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${origin}/api/auth/callback`,
+    },
+  });
+
+  if (error) {
+    console.error(error.code + " " + error.message);
+    return encodedRedirect("error", "/dashboard/add-client", error.message);
+  } else if (
+    data.user &&
+    data.user.identities &&
+    data.user.identities.length == 0
+  ) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Ya existe un usuario con este correo."
+    );
+  } else {
+    return encodedRedirect(
+      "success",
+      "/dashboard/add-client",
+      "Usuario creado correctamente."
+    );
+  }
+};
+
+export const createMembership = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const email = formData.get("email")?.toString();
+  const start_date = formData.get("start_date")?.toString();
+  const end_date = formData.get("end_date")?.toString();
+  const price = formData.get("price")?.toString();
+  const gym_id = formData.get("gym_id")?.toString();
+
+  // Validar campos
+  if (!email || !start_date || !end_date || !price || !gym_id) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Todos los campos son obligatorios"
+    );
+  }
+
+  // Validar si ya existe una membresía para el mismo cliente y gimnasio en las mismas fechas
+  const { data: existingMemberships, error: membershipError } = await supabase
+    .from("memberships")
+    .select("id")
+    .eq("user_email", email)
+    .eq("gym_id", gym_id)
+    .or(
+      `and(start_date.lte.${end_date}, end_date.gte.${start_date})` // Verificar solapamientos en cualquier parte del rango
+    );
+  if (membershipError) {
+    console.error(membershipError.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Error al verificar las membresías existentes"
+    );
+  }
+
+  // Si existe una membresía en las mismas fechas, retornar error
+  if (existingMemberships && existingMemberships.length > 0) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "Ya existe una membresía para este cliente durante esas fechas"
+    );
+  }
+
+  // Insertar la membresía
+  const { error: insertError } = await supabase.from("memberships").insert({
+    user_email: email,
+    gym_id: gym_id,
+    start_date,
+    end_date,
+    price: parseFloat(price),
+  });
+
+  if (insertError) {
+    console.error(insertError.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-client",
+      "No se pudo crear la membresía"
+    );
+  }
+
+  return encodedRedirect(
+    "success",
+    "/dashboard/add-client",
+    "Membresía creada correctamente"
+  );
+};
+
+export const openGym = async (formData: FormData) => {
+  const supabase = await createClient();
+  const gym_id = formData.get("id")?.toString();
+  const open = formData.get("is_open")?.toString();
+
+  // Validar campos
+  if (!open) {
+    return encodedRedirect("error", "/dashboard", "Error");
+  }
+
+  // Actualizar el gimnasio en la base de datos
+  const { error } = await supabase
+    .from("gyms")
+    .update({ is_open: open })
+    .eq("id", gym_id)
+    .single();
+
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard",
+      "No se pudo abrir el gimnasio"
+    );
+  }
+
+  return encodedRedirect("success", "/dashboard", "Cambio correctamente");
 };

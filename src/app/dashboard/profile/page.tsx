@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   title: "Perfil",
 };
 
-export default async function Profile() {
+export default function Profile() {
   return (
-    <Card className="md:w-1/3">
+    <Card className="md:w-2/5">
       <CardHeader>
         <CardTitle>Mi información</CardTitle>
         <CardDescription>Aqui podras editar tu información.</CardDescription>

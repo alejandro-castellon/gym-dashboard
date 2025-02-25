@@ -2,42 +2,35 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import MembershipDashboard from "@/components/dashboard/memberships";
 import GymDashboard from "@/components/dashboard/gyms";
-import {
-  getUserGyms,
-  getUserMembership,
-  getUserRole,
-} from "@/lib/supabase/data";
-import { Skeleton } from "@/components/ui/skeleton";
+import { getUserRole } from "@/lib/supabase/data";
+import GymDashboardSkeleton from "@/components/dashboard/gyms/skeleton";
+import MembershipDashboardSkeleton from "@/components/dashboard/memberships/skeleton";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-// Componente que primero verifica el rol y luego carga los datos adecuados
-async function RoleBasedData() {
-  // Primero verificamos el rol del usuario
-  const isAdmin = await getUserRole();
-
+function RoleBasedData(isAdmin: boolean) {
   if (isAdmin) {
-    // Si es admin, solo cargamos los datos del gimnasio
-    const gym = await getUserGyms();
-    return <GymDashboard gym={gym} />;
+    return <GymDashboard />;
   } else {
-    // Si es cliente, solo cargamos los datos de membresía
-    const membership = await getUserMembership();
-    return <MembershipDashboard membership={membership} />;
+    return <MembershipDashboard />;
   }
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const isAdmin = await getUserRole();
   return (
     <div>
-      <h1>Dashboard</h1>
-
+      <h1 className="text-2xl font-medium mb-4">Dashboard</h1>
       <Suspense
-        fallback={<Skeleton className="h-[125px] w-[250px] rounded-xl" />}
+        fallback={
+          (isAdmin && <GymDashboardSkeleton />) || (
+            <MembershipDashboardSkeleton />
+          )
+        }
       >
-        <RoleBasedData />
+        {RoleBasedData(isAdmin)}
       </Suspense>
     </div>
   );

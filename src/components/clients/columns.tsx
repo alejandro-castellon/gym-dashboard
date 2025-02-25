@@ -1,8 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { ArrowUpDown } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,30 +15,13 @@ import { Membership } from "@/types";
 
 export const columns: ColumnDef<Membership>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
-    accessorKey: "users.name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Nombre
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-  },
-  {
     accessorKey: "user_email",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="pl-0"
         >
           Email
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -48,22 +30,56 @@ export const columns: ColumnDef<Membership>[] = [
     },
   },
   {
+    accessorKey: "name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="pl-0"
+        >
+          Nombre
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    accessorFn: (row) => row.users?.name,
+  },
+  {
+    accessorKey: "ci",
+    header: "Ci",
+    accessorFn: (row) => row.users?.ci,
+    filterFn: (row, id, value) => {
+      const ci = row.getValue(id) as number;
+      const searchValue = value as string;
+      return ci?.toString().includes(searchValue);
+    },
+  },
+  {
+    accessorKey: "start_date",
+    header: "Fecha de inscripción",
+  },
+  {
+    accessorKey: "end_date",
+    header: "Fecha de finalización",
+  },
+  {
     accessorKey: "price",
     header: () => <div className="text-right">Precio</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price"));
       const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "BOB",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(amount);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return <div className="text-right font-medium">Bs {formatted}</div>;
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
@@ -74,15 +90,14 @@ export const columns: ColumnDef<Membership>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(user.user_email)}
             >
-              Copy payment ID
+              Copiar email
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>Ver cliente</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

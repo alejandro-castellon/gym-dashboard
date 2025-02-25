@@ -35,7 +35,7 @@ export const getUserMembership = async () => {
   // Obtener la membresía del usuario, junto con el nombre del gimnasio asociado
   const { data, error } = await supabase
     .from("memberships")
-    .select("*, gyms(name)")
+    .select("*, gyms(name, hours, is_open)")
     .eq("user_email", user.user.email)
     .single();
 
@@ -71,10 +71,9 @@ export const getGymMemberships = async () => {
   // Obtener la membresía del usuario
   const { data } = await supabase
     .from("memberships")
-    .select("*, users(name, ci, email)")
+    .select("*, users:users(name, ci)")
     .eq("gym_id", gym.id);
 
-  console.log(data);
   if (!data) {
     return null;
   }
