@@ -155,7 +155,7 @@ export default async function GymDashboard() {
               <Overview data={memberships} />
             </CardContent>
           </Card>
-          <Card className="col-span-3">
+          <Card className="md:col-span-3 col-span-4">
             <CardHeader>
               <CardTitle>Clientes recientes</CardTitle>
               <CardDescription>

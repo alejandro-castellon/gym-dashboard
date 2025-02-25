@@ -30,7 +30,10 @@ export default function Sidenav() {
               href: "/dashboard/profile",
               icon: (
                 <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="Avatar"
+                  />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               ),

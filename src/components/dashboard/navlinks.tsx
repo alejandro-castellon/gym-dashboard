@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  IconBrandTabler,
-  IconSettings,
-  IconUsers,
-  IconUserPlus,
-  IconLogout,
-} from "@tabler/icons-react";
+  LayoutDashboard,
+  Settings,
+  Users,
+  UserPlus,
+  LogOut,
+} from "lucide-react";
 import { SidebarLink } from "@/components/ui/sidebar";
 import { signOutAction } from "@/lib/supabase/actions";
 import { useUser } from "@/context/UserContext";
@@ -18,35 +18,35 @@ const links = [
     label: "Dashboard",
     href: "/dashboard",
     icon: (
-      <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+      <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {
     label: "Clientes",
     href: "/dashboard/clients",
     icon: (
-      <IconUsers className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+      <Users className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {
     label: "Agregar cliente",
     href: "/dashboard/add-client",
     icon: (
-      <IconUserPlus className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+      <UserPlus className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {
     label: "Configuración",
     href: "/dashboard/settings",
     icon: (
-      <IconSettings className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+      <Settings className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {
     label: "Cerrar sesión",
     href: "#",
     icon: (
-      <IconLogout className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+      <LogOut className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
     onClick: signOutAction,
   },

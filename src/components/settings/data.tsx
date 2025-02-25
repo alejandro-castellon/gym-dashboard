@@ -155,6 +155,7 @@ export default function SettingsData({ data }: SettingsFormProps) {
                       type="time"
                       value={open}
                       onChange={(e) => handleChange(e, day, "open")}
+                      className="pr-1 md:pr-3"
                     />
                     <Label htmlFor={`${day}-close`} className="mx-1 md:mx-3">
                       -
@@ -164,6 +165,7 @@ export default function SettingsData({ data }: SettingsFormProps) {
                       type="time"
                       value={close}
                       onChange={(e) => handleChange(e, day, "close")}
+                      className="pr-1 md:pr-3"
                     />
                   </div>
                 );

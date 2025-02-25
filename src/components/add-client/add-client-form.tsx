@@ -17,7 +17,7 @@ import {
   createUserInSupabaseAuth,
   createMembership,
 } from "@/lib/supabase/actions";
-import { IconUserPlus } from "@tabler/icons-react";
+import { UserPlus } from "lucide-react";
 import { Gym } from "@/types";
 
 interface SettingsFormProps {
@@ -137,7 +137,7 @@ export default function AddClient({ data }: SettingsFormProps) {
                   disabled={!formData.email}
                   size="sm"
                 >
-                  <IconUserPlus />
+                  <UserPlus />
                 </Button>
               </div>
               <Input
