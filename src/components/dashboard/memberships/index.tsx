@@ -13,22 +13,37 @@ const weekdayTranslations: Record<string, string> = {
   sunday: "Domingo",
 };
 
+// Orden de los días de la semana
+const weekdayOrder: Record<string, number> = {
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  sunday: 7,
+};
+
 export default async function MembershipDashboard() {
-  const data: Membership = await getUserMembership();
+  const membership: Membership = await getUserMembership();
 
   const checkMembershipStatus = () => {
     const currentDate = new Date();
-    const startDate = new Date(data.start_date);
-    const endDate = new Date(data.end_date);
 
-    if (currentDate >= startDate && currentDate <= endDate) {
-      return "Activa";
-    } else if (currentDate > endDate) {
-      return "Vencida";
-    }
+    const currentDateString = currentDate.toISOString().split("T")[0];
+
+    const endDate = new Date(membership.end_date);
+    const endDateString = endDate.toISOString().split("T")[0];
+
+    const timeDiff = endDate.getDate() - currentDate.getDate() + 1;
+    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    console.log(endDate.getDate(), currentDate.getDate(), daysLeft);
+    if (endDateString >= currentDateString) {
+      return { status: "Activa", daysLeft };
+    } else return { status: "Vencida", daysLeft: 0 };
   };
 
-  if (data) {
+  if (membership) {
     return (
       <div className="max-w-3xl mx-auto p-4 space-y-6">
         {/* Información de la membresía */}
@@ -38,22 +53,23 @@ export default async function MembershipDashboard() {
           </CardHeader>
           <CardContent>
             <p>
-              <strong>Gimnasio:</strong> {data.gyms?.name}
+              <strong>Gimnasio:</strong> {membership.gyms?.name}
             </p>
             <p>
-              <strong>Inicio:</strong> {data.start_date}
+              <strong>Inicio:</strong> {membership.start_date.toString()}
             </p>
             <p>
-              <strong>Vencimiento:</strong> {data.end_date}
+              <strong>Vencimiento:</strong> {membership.end_date.toString()}
             </p>
             <p
               className={
-                checkMembershipStatus() === "Activa"
+                checkMembershipStatus().status === "Activa"
                   ? "text-green-600"
                   : "text-red-600"
               }
             >
-              <strong>Estado:</strong> {checkMembershipStatus()}
+              <strong>Estado:</strong> {checkMembershipStatus().status} (
+              {checkMembershipStatus().daysLeft} días restantes)
             </p>
           </CardContent>
         </Card>
@@ -64,25 +80,27 @@ export default async function MembershipDashboard() {
             <CardTitle>Horarios del Gimnasio</CardTitle>
           </CardHeader>
           <CardContent>
-            {data.gyms && (
+            {membership.gyms && (
               <div className="grid gap-2">
-                {Object.entries(data.gyms.hours).map(([day, hours]) => (
-                  <div key={day} className="flex justify-between">
-                    <span>{weekdayTranslations[day]}</span>
-                    <span>
-                      {hours.open} - {hours.close}
-                    </span>
-                  </div>
-                ))}
+                {Object.entries(membership.gyms.hours)
+                  .sort(([a], [b]) => weekdayOrder[a] - weekdayOrder[b])
+                  .map(([day, hours]) => (
+                    <div key={day} className="flex justify-between">
+                      <span>{weekdayTranslations[day]}</span>
+                      <span>
+                        {hours.open} - {hours.close}
+                      </span>
+                    </div>
+                  ))}
               </div>
             )}
             <p
               className={`mt-4 font-medium ${
-                data.gyms?.is_open ? "text-green-600" : "text-red-600"
+                membership.gyms?.is_open ? "text-green-600" : "text-red-600"
               }`}
             >
               Actualmente el gimnasio está{" "}
-              {data.gyms?.is_open ? "abierto" : "cerrado"}.
+              {membership.gyms?.is_open ? "abierto" : "cerrado"}.
             </p>
           </CardContent>
         </Card>
