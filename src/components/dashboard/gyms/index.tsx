@@ -1,6 +1,6 @@
 import { Gym, Membership } from "@/types";
 import { getUserGyms } from "@/lib/supabase/data";
-import { getGymMemberships } from "@/lib/supabase/data";
+import { getAllGymMemberships } from "@/lib/supabase/data";
 import {
   Card,
   CardDescription,
@@ -15,32 +15,40 @@ import { OpenGymButton } from "./open-gym";
 
 export default async function GymDashboard() {
   const gym: Gym = await getUserGyms();
-  const memberships: Membership[] = (await getGymMemberships()) || [];
+  const memberships: Membership[] = (await getAllGymMemberships()) || [];
+
+  // Total de membresías de todos los meses
+  const totalMemberships = memberships.length;
 
   // Función para obtener el mes y año de una fecha
-  const getMonthYear = (date: string) => {
+  const getMonthYear = (date: Date) => {
     const d = new Date(date);
     return `${d.getFullYear()}-${d.getMonth() + 1}`; // Devuelve 'yyyy-mm'
   };
 
   const currentDate = new Date();
+  const currentDateString = currentDate.toISOString().split("T")[0]; // Obtener solo la fecha sin la hora
 
-  // Total de membresías de todos los meses
-  const totalMemberships = memberships.length;
+  const activeMemberships = memberships.filter((membership) => {
+    const endDate = new Date(membership.end_date);
+    const endDateString = endDate.toISOString().split("T")[0]; // Obtener solo la fecha sin la hora
 
-  // Membresías activas, considerando las que están activas en este momento
-  const activeMemberships = memberships.filter(
-    (membership) =>
-      new Date(membership.start_date) <= currentDate &&
-      new Date(membership.end_date) >= currentDate
-  );
+    // Comparar las fechas sin tener en cuenta la hora
+    return endDateString >= currentDateString;
+  });
 
   // Membresías que están activas y a menos de una semana de expirar
-  const fewDaysMemberships = memberships.filter((membership) => {
+  const fewDaysMemberships = activeMemberships.filter((membership) => {
     const endDate = new Date(membership.end_date);
+    const endDateString = endDate.toISOString().split("T")[0]; // Obtener solo la fecha sin la hora
+
+    // Calcular la diferencia de días
+    const timeDiffInMs = endDate.getTime() - currentDate.getTime();
+    const diffInDays = timeDiffInMs / (1000 * 60 * 60 * 24);
+
     return (
-      endDate >= currentDate && // Aún no ha expirado
-      (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24) <= 7 // Menos de 7 días
+      endDateString >= currentDateString && // Aún no ha expirado
+      diffInDays <= 7 // Menos de 7 días
     );
   });
 
@@ -59,16 +67,14 @@ export default async function GymDashboard() {
   const currentMonthIngresos = memberships
     .filter(
       (membership) =>
-        getMonthYear(membership.start_date) ===
-        getMonthYear(currentDate.toISOString())
+        getMonthYear(membership.start_date) === getMonthYear(currentDate)
     )
     .reduce((sum, membership) => sum + membership.price, 0);
 
   // Filtrar las membresías del mes actual
   const currentMonthClients = memberships.filter(
     (membership) =>
-      getMonthYear(membership.start_date) ===
-      getMonthYear(currentDate.toISOString())
+      getMonthYear(membership.start_date) === getMonthYear(currentDate)
   );
 
   // Ordenar por fecha de inicio (de más reciente a más antiguo)

@@ -29,9 +29,10 @@ export interface Membership {
   created_at: string; // Fecha de creación de la membresía en formato ISO
   user_email: string; // ID del usuario (quien tiene la membresía)
   gym_id: string; // ID del gimnasio al que está asociada la membresía
-  start_date: string; // Fecha de inicio de la membresía en formato ISO
-  end_date: string; // Fecha de finalización de la membresía en formato ISO
+  start_date: Date; // Fecha de inicio de la membresía en formato ISO
+  end_date: Date; // Fecha de finalización de la membresía en formato ISO
   price: number; // Precio de la membresía
+  days_left?: number; // Días restantes de la membresía
   gyms?: {
     // Información adicional sobre el gimnasio (opcional si no existe)
     name: string; // Nombre del gimnasio

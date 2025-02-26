@@ -28,7 +28,8 @@ export function RecentClients({ data }: RecentClientsProps) {
               {membership.user_email}
             </p>
             <p className="text-xs text-muted-foreground">
-              {new Date(membership.start_date).toLocaleDateString()}
+              {new Date(membership.start_date).toLocaleDateString()} -{" "}
+              {new Date(membership.end_date).toLocaleDateString()}
             </p>
           </div>
           <div className="ml-auto font-medium">

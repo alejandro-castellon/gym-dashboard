@@ -64,26 +64,6 @@ export const columns: ColumnDef<Membership>[] = [
     header: "Fecha de finalización",
   },
   {
-    accessorKey: "days_left",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="pl-0"
-        >
-          Dias restantes
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const daysLeft = row.getValue("days_left") as number;
-      const textColor = daysLeft < 7 ? "text-red-500" : "text-green-500";
-      return <div className={`${textColor}`}>{daysLeft}</div>;
-    },
-  },
-  {
     accessorKey: "price",
     header: () => <div className="text-right">Precio</div>,
     cell: ({ row }) => {

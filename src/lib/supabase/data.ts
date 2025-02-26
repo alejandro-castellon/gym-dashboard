@@ -50,7 +50,39 @@ export const getUserMembership = async () => {
   return data; // Aquí obtendrás la membresía con el nombre del gimnasio
 };
 
-export const getGymMemberships = async () => {
+export const getActiveGymMemberships = async () => {
+  const supabase = await createClient();
+
+  // Obtener el usuario autenticado
+  const { data: user, error: userError } = await supabase.auth.getUser();
+  if (userError || !user?.user) {
+    throw new Error("Usuario no autenticado");
+  }
+
+  const { data: gym, error: gymError } = await supabase
+    .from("gyms")
+    .select("id")
+    .contains("admin_ids", [user.user.id])
+    .single();
+  if (gymError || !gym.id) {
+    throw new Error("Gym no encontrado");
+  }
+
+  // Obtener la membresía del usuario
+  const { data } = await supabase
+    .from("active_memberships")
+    .select("*, users:users(name, ci)")
+    .eq("gym_id", gym.id)
+    .order("start_date", { ascending: true });
+
+  if (!data) {
+    return null;
+  }
+
+  return data;
+};
+
+export const getAllGymMemberships = async () => {
   const supabase = await createClient();
 
   // Obtener el usuario autenticado
@@ -72,13 +104,14 @@ export const getGymMemberships = async () => {
   const { data } = await supabase
     .from("memberships")
     .select("*, users:users(name, ci)")
-    .eq("gym_id", gym.id);
+    .eq("gym_id", gym.id)
+    .order("start_date", { ascending: false });
 
   if (!data) {
     return null;
   }
 
-  return data; // Aquí obtendrás la membresía con el nombre del gimnasio
+  return data;
 };
 
 export const getUserRole = async () => {

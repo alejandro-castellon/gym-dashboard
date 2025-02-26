@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  FileUser,
   LayoutDashboard,
   Settings,
   Users,
@@ -33,6 +34,13 @@ const links = [
     href: "/dashboard/add-client",
     icon: (
       <UserPlus className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+    ),
+  },
+  {
+    label: "Membresías",
+    href: "/dashboard/memberships",
+    icon: (
+      <FileUser className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {
