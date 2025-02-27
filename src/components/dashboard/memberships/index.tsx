@@ -37,7 +37,7 @@ export default async function MembershipDashboard() {
 
     const timeDiff = endDate.getDate() - currentDate.getDate() + 1;
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    console.log(endDate.getDate(), currentDate.getDate(), daysLeft);
+
     if (endDateString >= currentDateString) {
       return { status: "Activa", daysLeft };
     } else return { status: "Vencida", daysLeft: 0 };
