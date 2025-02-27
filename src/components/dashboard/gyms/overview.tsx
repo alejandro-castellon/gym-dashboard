@@ -58,7 +58,10 @@ export function Overview({ data }: OverviewProps) {
   const formatCurrency = (value: number) => `Bs ${value.toLocaleString()}`;
 
   return (
-    <ChartContainer config={chartConfig} className="aspect-[4/3]">
+    <ChartContainer
+      config={chartConfig}
+      className="w-full md:h-[50vh] lg:h-[60vh]"
+    >
       <BarChart
         data={monthlyData}
         margin={{ top: 10, right: 10, left: 5, bottom: 24 }}

@@ -4,8 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import NavLinks from "./navlinks";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import Image from "next/image";
 import { useUser } from "@/context/UserContext";
+import { useTheme } from "next-themes";
 
 // Componentes optimizados
 const MemoizedNavLinks = React.memo(NavLinks);
@@ -13,13 +14,30 @@ const MemoizedNavLinks = React.memo(NavLinks);
 export default function Sidenav() {
   const [open, setOpen] = useState(false);
   const { user } = useUser();
-
+  const { resolvedTheme } = useTheme();
   const userLabel = user?.name || user?.email || "Invitado";
+
+  const Logo = () => (
+    <Link
+      href="/"
+      className="font-normal flex space-x-2 items-center justify-center text-sm text-black py-1 relative z-20"
+    >
+      <Image src="/logo.png" alt="Clubs Manager" width={35} height={35} />
+      <Image
+        src={
+          resolvedTheme === "dark" ? "/logo-letras2.png" : "/logo-letras.png"
+        }
+        alt="Clubs Manager letters"
+        width={180}
+        height={50}
+      />
+    </Link>
+  );
 
   return (
     <Sidebar open={open} setOpen={setOpen}>
       <SidebarBody>
-        <div className="flex md:flex-col flex-1 overflow-y-auto overflow-x-hidden gap-8">
+        <div className="flex md:flex-col flex-1 overflow-y-auto overflow-x-hidden gap-4 md:gap-8">
           {open ? <Logo /> : <LogoIcon />}
           <MemoizedNavLinks />
         </div>
@@ -45,27 +63,11 @@ export default function Sidenav() {
   );
 }
 
-const Logo = () => (
-  <Link
-    href="/"
-    className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-  >
-    <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-    <motion.span
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="font-medium text-black dark:text-white whitespace-pre"
-    >
-      Gym App
-    </motion.span>
-  </Link>
-);
-
 const LogoIcon = () => (
   <Link
     href="/"
     className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
   >
-    <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+    <Image src="/logo.png" alt="Clubs Manager mobile" width={35} height={35} />
   </Link>
 );
