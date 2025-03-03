@@ -5,7 +5,7 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateGymData } from "@/lib/supabase/actions";
-import { Gym } from "@/types";
+import { GymSettings } from "@/types";
 import { useUser } from "@/context/UserContext";
 
 type Weekday =
@@ -38,11 +38,11 @@ const weekdays: Weekday[] = [
 ];
 
 interface SettingsFormProps {
-  data: Gym;
+  data: GymSettings;
 }
 
-export default function SettingsData({ data }: SettingsFormProps) {
-  const [formData, setFormData] = useState<Gym>(
+export default function Settings({ data }: SettingsFormProps) {
+  const [formData, setFormData] = useState<GymSettings>(
     data || {
       name: "",
       hours: {
@@ -54,7 +54,13 @@ export default function SettingsData({ data }: SettingsFormProps) {
         saturday: { open: "", close: "" },
         sunday: { open: "", close: "" },
       },
-      price: 0,
+      gymPrices: [
+        { membership_type_id: 1, price: 0 }, // Precio mensual
+        { membership_type_id: 2, price: 0 }, // Precio trimestral
+        { membership_type_id: 3, price: 0 }, // Precio semestral
+        { membership_type_id: 4, price: 0 }, // Precio anual
+        { membership_type_id: 5, price: 0 }, // Precio día por medio
+      ],
     }
   );
   const [initialData, setInitialData] = useState(formData);
@@ -80,6 +86,21 @@ export default function SettingsData({ data }: SettingsFormProps) {
     }));
   };
 
+  const handlePriceChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    membershipTypeId: number
+  ) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      gymPrices: prev.gymPrices.map((price) =>
+        price.membership_type_id === membershipTypeId
+          ? { ...price, price: parseFloat(value) }
+          : price
+      ),
+    }));
+  };
+
   const handleCancel = () => {
     setFormData(initialData);
   };
@@ -93,7 +114,14 @@ export default function SettingsData({ data }: SettingsFormProps) {
       formDataToSubmit.append(`${day}_open`, hours.open);
       formDataToSubmit.append(`${day}_close`, hours.close);
     });
-    formDataToSubmit.append("price", formData.price.toString());
+
+    formData.gymPrices.forEach((price) => {
+      formDataToSubmit.append(
+        `price_${price.membership_type_id}`,
+        price.price?.toString() || ""
+      );
+    });
+
     formDataToSubmit.append("id", user?.id || "");
     updateGymData(formDataToSubmit);
     setInitialData(formData);
@@ -115,27 +143,40 @@ export default function SettingsData({ data }: SettingsFormProps) {
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
-              <Label htmlFor="price" className="pt-4">
-                Precio de la membresia
-              </Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                  Bs
-                </span>
-                <Input
-                  id="price"
-                  placeholder="0.0"
-                  value={formData.price}
-                  type="number"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      price: parseFloat(e.target.value),
-                    })
-                  }
-                  className="pl-8"
-                />
+              <div className="flex justify-center font-semibold">
+                <span className="mt-4 md:mb-2">Precios</span>
               </div>
+
+              {[
+                { id: 1, label: "Mensual" },
+                { id: 2, label: "Trimestral" },
+                { id: 3, label: "Semestral" },
+                { id: 4, label: "Anual" },
+                { id: 5, label: "Día por medio" },
+              ].map((membership) => (
+                <div key={membership.id} className="flex justify-between">
+                  <Label htmlFor={`price_${membership.id}`} className="pt-4">
+                    {`Membresía ${membership.label}`}
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      Bs
+                    </span>
+                    <Input
+                      id={`price_${membership.id}`}
+                      placeholder="0.0"
+                      value={
+                        formData.gymPrices.find(
+                          (price) => price.membership_type_id === membership.id
+                        )?.price || ""
+                      }
+                      type="number"
+                      onChange={(e) => handlePriceChange(e, membership.id)}
+                      className="pl-8"
+                    />
+                  </div>
+                </div>
+              ))}
 
               <div className="flex justify-center font-semibold">
                 <span className="mt-4 md:mb-2">Horarios</span>

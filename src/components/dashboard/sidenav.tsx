@@ -28,7 +28,7 @@ export default function Sidenav() {
           resolvedTheme === "dark" ? "/logo-letras2.png" : "/logo-letras.png"
         }
         alt="Clubs Manager letters"
-        width={180}
+        width={170}
         height={50}
       />
     </Link>

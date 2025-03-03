@@ -1,8 +1,13 @@
-import SettingsData from "./data";
-import { getUserGyms } from "@/lib/supabase/data";
-import { Gym } from "@/types";
+import Settings from "./form";
+import { getGymSettings } from "@/lib/supabase/data";
+import { GymSettings } from "@/types";
 
 export default async function SettingsForm() {
-  const gym: Gym = await getUserGyms();
-  return <SettingsData data={gym || null} />;
+  const data: GymSettings = (await getGymSettings()) || {
+    gymPrices: [],
+    id: "",
+    name: "",
+    hours: "",
+  };
+  return <Settings data={data} />;
 }

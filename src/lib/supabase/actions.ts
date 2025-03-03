@@ -229,7 +229,7 @@ export const updateGymData = async (formData: FormData) => {
   const supabase = await createClient();
   const name = formData.get("name")?.toString();
   const user_id = formData.get("id")?.toString();
-  const price = formData.get("price")?.toString();
+
   // Obtener los horarios de apertura y cierre
   const gym_hours = [...formData.entries()]
     .filter(([key]) => key.endsWith("_open") || key.endsWith("_close"))
@@ -240,8 +240,22 @@ export const updateGymData = async (formData: FormData) => {
       return acc;
     }, {} as Record<string, { open: string; close: string }>);
 
+  // Obtener los precios de las membresías
+  const gymPrices = [
+    { membership_type_id: 1, price: formData.get("price_1")?.toString() },
+    { membership_type_id: 2, price: formData.get("price_2")?.toString() },
+    { membership_type_id: 3, price: formData.get("price_3")?.toString() },
+    { membership_type_id: 4, price: formData.get("price_4")?.toString() },
+    { membership_type_id: 5, price: formData.get("price_5")?.toString() },
+  ];
+
+  // Filtrar precios vacíos
+  const filteredPrices = gymPrices.filter(
+    (price) => price.price && !isNaN(parseFloat(price.price))
+  );
+
   // Validar campos
-  if (!name || !price || Object.keys(gym_hours).length === 0) {
+  if (!name || Object.keys(gym_hours).length === 0) {
     return encodedRedirect(
       "error",
       "/dashboard/settings",
@@ -249,11 +263,18 @@ export const updateGymData = async (formData: FormData) => {
     );
   }
 
+  // Obtener los gimnasios del usuario
+  const { data: gym } = await supabase
+    .from("gyms")
+    .select("*")
+    .contains("admin_ids", [user_id])
+    .single(); // Verifica si el usuario está en admin_ids
+
   // Actualizar el gimnasio en la base de datos
   const { error } = await supabase
     .from("gyms")
-    .update({ name, hours: gym_hours, price })
-    .contains("admin_ids", [user_id])
+    .update({ name, hours: gym_hours })
+    .eq("id", gym.id)
     .single();
 
   if (error) {
@@ -261,14 +282,34 @@ export const updateGymData = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/settings",
-      "No se pudo actualizar los datos"
+      "No se pudo actualizar los datos del gimnasio"
     );
+  }
+
+  // Crear o actualizar los precios de las membresías
+  for (const { membership_type_id, price } of filteredPrices) {
+    const { error: priceError } = await supabase
+      .from("gym_prices")
+      .update({
+        price: parseFloat(price ?? "0"), // Guardamos el precio como número
+      })
+      .eq("membership_type_id", membership_type_id)
+      .eq("gym_id", gym.id);
+
+    if (priceError) {
+      console.error(priceError.message);
+      return encodedRedirect(
+        "error",
+        "/dashboard/settings",
+        "No se pudo actualizar los precios"
+      );
+    }
   }
 
   return encodedRedirect(
     "success",
     "/dashboard/settings",
-    "Gimnasio actualizado correctamente"
+    "Datos actualizados correctamente"
   );
 };
 
