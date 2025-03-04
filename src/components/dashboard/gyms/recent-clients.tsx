@@ -12,7 +12,6 @@ export function RecentClients({ data }: RecentClientsProps) {
     const dateB = new Date(b.start_date);
     return dateB.getTime() - dateA.getTime(); // Ordenar de más reciente a más antiguo
   });
-
   return (
     <div className="space-y-8">
       {sortedData.map((membership, index) => (
@@ -28,8 +27,12 @@ export function RecentClients({ data }: RecentClientsProps) {
               {membership.user_email}
             </p>
             <p className="text-xs text-muted-foreground">
-              {new Date(membership.start_date).toLocaleDateString()} -{" "}
-              {new Date(membership.end_date).toLocaleDateString()}
+              {new Date(membership.start_date).getUTCDate()}/
+              {new Date(membership.start_date).getUTCMonth() + 1}/
+              {new Date(membership.start_date).getUTCFullYear()} -{" "}
+              {new Date(membership.end_date).getUTCDate()}/
+              {new Date(membership.end_date).getUTCMonth() + 1}/
+              {new Date(membership.end_date).getUTCFullYear()}
             </p>
           </div>
           <div className="ml-auto font-medium">

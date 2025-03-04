@@ -1,8 +1,13 @@
 import AddClient from "./add-client-form";
-import { getUserGyms } from "@/lib/supabase/data";
-import { Gym } from "@/types";
+import { getGymSettings } from "@/lib/supabase/data";
+import { GymSettings } from "@/types";
 
 export default async function AddClientForm() {
-  const gym: Gym = await getUserGyms();
-  return <AddClient data={gym || null} />;
+  const data: GymSettings = (await getGymSettings()) || {
+    gymPrices: [],
+    id: "",
+    name: "",
+    hours: "",
+  };
+  return <AddClient data={data || null} />;
 }

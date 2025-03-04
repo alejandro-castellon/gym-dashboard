@@ -18,49 +18,61 @@ import {
   createMembership,
 } from "@/lib/supabase/actions";
 import { UserPlus } from "lucide-react";
-import { Gym } from "@/types";
+import { GymSettings, GymPrices } from "@/types";
+import { addMonths, subDays, lastDayOfMonth } from "date-fns";
 
 interface SettingsFormProps {
-  data: Gym;
+  data: GymSettings;
 }
 
-export default function AddClient({ data }: SettingsFormProps) {
-  // Funciones para fechas
-  const getTodayDate = () => new Date().toISOString().split("T")[0];
-  // Función para calcular la fecha de finalización según la membresía
-  const getEndDateByMembership = (startDate: string, type: string) => {
-    const date = new Date(startDate);
-    switch (type) {
-      case "mes":
-        date.setMonth(date.getMonth() + 1);
-        break;
-      case "trimes":
-        date.setMonth(date.getMonth() + 3);
-        break;
-      case "semes":
-        date.setMonth(date.getMonth() + 6);
-        break;
-      case "anio":
-        date.setFullYear(date.getFullYear() + 1);
-        break;
-    }
-    return date.toISOString().split("T")[0];
-  };
+const membershipTypes: Record<number, string> = {
+  1: "Mensual",
+  2: "Trimestral",
+  3: "Semestral",
+  4: "Anual",
+  5: "Día por medio mensual",
+};
 
-  const calculatePriceByMembership = (type: string) => {
-    const basePrice = data.price;
-    switch (type) {
-      case "mes":
-        return basePrice;
-      case "trimes":
-        return basePrice * 3;
-      case "semes":
-        return basePrice * 6;
-      case "anio":
-        return basePrice * 12;
+export default function AddClient({ data }: SettingsFormProps) {
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
+
+  const getEndDateByMembership = (
+    startDate: string,
+    membershipType: number
+  ) => {
+    const date = new Date(startDate);
+    let monthsToAdd: number;
+
+    switch (membershipType) {
+      case 1:
+        monthsToAdd = 1;
+        break; // Mensual
+      case 2:
+        monthsToAdd = 3;
+        break; // Trimestral
+      case 3:
+        monthsToAdd = 6;
+        break; // Semestral
+      case 4:
+        monthsToAdd = 12;
+        break; // Anual
+      case 5:
+        monthsToAdd = 1;
+        break; // Día por medio
       default:
-        return 0; // Precio inicial si no se selecciona nada
+        throw new Error("Tipo de membresía no válido");
     }
+
+    // Sumamos los meses exactos
+    const futureDate = addMonths(date, monthsToAdd);
+
+    // Si el día de inicio es el primero del mes, ajustamos al último día del mes de la membresía
+    if (date.getUTCDate() === 1) {
+      return lastDayOfMonth(futureDate).toISOString().split("T")[0];
+    }
+
+    // En caso contrario, restamos 1 día al resultado normal
+    return subDays(futureDate, 1).toISOString().split("T")[0];
   };
 
   const initialFormData = {
@@ -72,50 +84,67 @@ export default function AddClient({ data }: SettingsFormProps) {
 
   const [formData, setFormData] = useState(initialFormData);
   const [isChanged, setIsChanged] = useState(false);
-  const [selectedMembership, setSelectedMembership] = useState("");
+  const [selectedMembership, setSelectedMembership] =
+    useState<GymPrices | null>(null);
 
-  // Nueva función para manejar el cambio del Select
   const handleSelectChange = (value: string) => {
-    setSelectedMembership(value); // Guardamos la membresía seleccionada
+    const membership = data.gymPrices.find(
+      (price) => price.membership_type_id.toString() === value
+    );
+    if (!membership) return;
+
+    setSelectedMembership(membership);
     setFormData((prev) => ({
       ...prev,
-      end_date: getEndDateByMembership(prev.start_date, value),
-      price: calculatePriceByMembership(value).toString(),
+      end_date: getEndDateByMembership(
+        prev.start_date,
+        membership.membership_type_id
+      ),
+      price: membership.price.toString(),
     }));
     setIsChanged(true);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+    setFormData((prev) => {
+      const updatedData = { ...prev, [id]: value };
 
-    const updatedFormData = { ...formData, [id]: value };
-    if (id === "start_date" && selectedMembership) {
-      updatedFormData.end_date = getEndDateByMembership(
-        value,
-        selectedMembership
-      );
-    }
+      // Si el usuario cambia la fecha de inicio, recalculamos la fecha de finalización
+      if (id === "start_date" && selectedMembership) {
+        updatedData.end_date = getEndDateByMembership(
+          value,
+          selectedMembership.membership_type_id
+        );
+      }
 
-    setFormData(updatedFormData);
-    setIsChanged(updatedFormData.email !== "" || updatedFormData.price !== "0");
+      return updatedData;
+    });
+    setIsChanged(true);
   };
 
   const handleCancel = () => {
     setFormData(initialFormData);
-    setSelectedMembership("");
+    setSelectedMembership(null);
     setIsChanged(false);
   };
 
   const handleSave = () => {
+    if (!selectedMembership) return;
+
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("email", formData.email);
     formDataToSubmit.append("start_date", formData.start_date);
     formDataToSubmit.append("end_date", formData.end_date);
     formDataToSubmit.append("price", formData.price);
     formDataToSubmit.append("gym_id", data.id);
+    formDataToSubmit.append(
+      "membership_type_id",
+      selectedMembership.membership_type_id.toString()
+    );
     createMembership(formDataToSubmit);
     setFormData(initialFormData);
-    setSelectedMembership("");
+    setSelectedMembership(null);
     setIsChanged(false);
   };
 
@@ -153,7 +182,7 @@ export default function AddClient({ data }: SettingsFormProps) {
               <Label htmlFor="memb">Membresía</Label>
               <Select
                 onValueChange={handleSelectChange}
-                value={selectedMembership || ""}
+                value={selectedMembership?.membership_type_id.toString() || ""}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecciona el tipo de membresía" />
@@ -161,10 +190,16 @@ export default function AddClient({ data }: SettingsFormProps) {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Membresía</SelectLabel>
-                    <SelectItem value="mes">Mensual</SelectItem>
-                    <SelectItem value="trimes">Trimestral</SelectItem>
-                    <SelectItem value="semes">Semestral</SelectItem>
-                    <SelectItem value="anio">Anual</SelectItem>
+                    {data.gymPrices
+                      .filter((price) => price.price !== null) // Filtra los precios nulos
+                      .map(({ membership_type_id }) => (
+                        <SelectItem
+                          key={membership_type_id}
+                          value={membership_type_id.toString()}
+                        >
+                          {membershipTypes[membership_type_id]}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -177,7 +212,6 @@ export default function AddClient({ data }: SettingsFormProps) {
                   onChange={handleChange}
                   value={formData.start_date}
                   type="date"
-                  className="pr-1 md:pr-3"
                   required
                 />
               </div>
@@ -204,10 +238,8 @@ export default function AddClient({ data }: SettingsFormProps) {
                 <Input
                   id="price"
                   type="number"
-                  placeholder="Introduce el precio"
-                  onChange={handleChange}
                   value={formData.price}
-                  required
+                  readOnly
                   className="pl-10"
                 />
               </div>

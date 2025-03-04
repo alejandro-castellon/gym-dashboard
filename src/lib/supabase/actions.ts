@@ -364,9 +364,17 @@ export const createMembership = async (formData: FormData) => {
   const end_date = formData.get("end_date")?.toString();
   const price = formData.get("price")?.toString();
   const gym_id = formData.get("gym_id")?.toString();
+  const membership_type_id = formData.get("membership_type_id")?.toString();
 
   // Validar campos
-  if (!email || !start_date || !end_date || !price || !gym_id) {
+  if (
+    !email ||
+    !start_date ||
+    !end_date ||
+    !price ||
+    !gym_id ||
+    !membership_type_id
+  ) {
     return encodedRedirect(
       "error",
       "/dashboard/add-client",
@@ -408,6 +416,7 @@ export const createMembership = async (formData: FormData) => {
     start_date,
     end_date,
     price: parseFloat(price),
+    membership_type_id: parseInt(membership_type_id),
   });
 
   if (insertError) {

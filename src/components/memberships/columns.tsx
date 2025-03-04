@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Membership } from "@/types";
 
+const membershipTypeLabels: { [key: number]: string } = {
+  1: "Mensual",
+  2: "Trimestral",
+  3: "Semestral",
+  4: "Anual",
+  5: "Día por medio",
+};
+
 export const columns: ColumnDef<Membership>[] = [
   {
     accessorKey: "user_email",
@@ -56,12 +64,52 @@ export const columns: ColumnDef<Membership>[] = [
     },
   },
   {
+    accessorKey: "membership_type_id",
+    header: "Tipo de membresía",
+    cell: ({ row }) => {
+      const membershipType = row.getValue("membership_type_id");
+      return (
+        <div>
+          {membershipTypeLabels[membershipType as number] || "Desconocido"}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "start_date",
     header: "Fecha de inscripción",
+    cell: ({ row }) => {
+      const startDate = row.getValue("start_date") as string;
+      const date = new Date(startDate);
+
+      // Ajuste manual del día para que coincida con la zona horaria local (solo si es necesario)
+      const day = date.getUTCDate();
+      const month = date.getUTCMonth() + 1; // Los meses en JavaScript son 0-indexados
+      const year = date.getUTCFullYear();
+
+      // Retornar en formato dd/mm/yyyy
+      return `${day < 10 ? `0${day}` : day}/${
+        month < 10 ? `0${month}` : month
+      }/${year}`;
+    },
   },
   {
     accessorKey: "end_date",
     header: "Fecha de finalización",
+    cell: ({ row }) => {
+      const endDate = row.getValue("end_date") as string;
+      const date = new Date(endDate);
+
+      // Ajuste manual del día para que coincida con la zona horaria local (solo si es necesario)
+      const day = date.getUTCDate();
+      const month = date.getUTCMonth() + 1; // Los meses en JavaScript son 0-indexados
+      const year = date.getUTCFullYear();
+
+      // Retornar en formato dd/mm/yyyy
+      return `${day < 10 ? `0${day}` : day}/${
+        month < 10 ? `0${month}` : month
+      }/${year}`;
+    },
   },
   {
     accessorKey: "price",

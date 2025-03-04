@@ -22,7 +22,7 @@ export interface Gym {
   hours: GymHours; // Horario de apertura y cierre del gimnasio
   is_open: boolean; // Indica si el gimnasio está abierto o cerrado
 }
-interface GymPrices {
+export interface GymPrices {
   id: string; // ID del gimnasio
   price: number; // Precio de la membresía
   membership_type_id: number; // ID del tipo de membresía
@@ -44,6 +44,7 @@ export interface Membership {
   end_date: Date; // Fecha de finalización de la membresía en formato ISO
   price: number; // Precio de la membresía
   days_left?: number; // Días restantes de la membresía
+  membership_type_id: number; // ID del tipo de membresía
   gyms?: {
     // Información adicional sobre el gimnasio (opcional si no existe)
     name: string; // Nombre del gimnasio
