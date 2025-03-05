@@ -85,9 +85,12 @@ const attendanceData: Attendance[] = [
   },
 ];
 
-export default async function Page(props: { params: { id: string } }) {
-  const getParams = async () => props.params;
-  const { id } = await getParams();
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   const user: User = await getUser(id);
   const memberships: Membership[] =
     (await getUserMemberships(user.email)) || [];
