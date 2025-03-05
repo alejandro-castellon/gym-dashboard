@@ -47,6 +47,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
               email: authData.user.email ?? "",
               name: userData.name ?? "",
               ci: userData.ci ?? "",
+              phone: userData.phone ?? "",
+              gender: userData.gender ?? "",
               fecha_nacimiento: userData.fecha_nacimiento ?? "",
               created_at: userData.created_at,
             },

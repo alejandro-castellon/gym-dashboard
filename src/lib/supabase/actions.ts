@@ -183,17 +183,17 @@ export const updateProfile = async (formData: FormData) => {
   const ci = formData.get("ci")?.toString();
   const fecha_nacimiento = formData.get("fecha_nacimiento")?.toString();
   const id = formData.get("id")?.toString();
+  const phone = formData.get("phone")?.toString();
+  const gender = formData.get("gender")?.toString();
 
-  // Validar campos
-  if (!name || !ci || !fecha_nacimiento) {
+  // Convertir la fecha de nacimiento a formato Date si es necesario
+  if (!fecha_nacimiento) {
     return encodedRedirect(
       "error",
       "/dashboard/profile",
-      "Todos los campos son obligatorios"
+      "Fecha de nacimiento no válida"
     );
   }
-
-  // Convertir la fecha de nacimiento a formato Date si es necesario
   const birthDate = new Date(fecha_nacimiento);
   if (isNaN(birthDate.getTime())) {
     return encodedRedirect(
@@ -206,7 +206,13 @@ export const updateProfile = async (formData: FormData) => {
   // Actualizar el perfil en la base de datos
   const { error } = await supabase
     .from("users")
-    .update({ name, ci, fecha_nacimiento: birthDate.toISOString() })
+    .update({
+      name,
+      ci,
+      fecha_nacimiento: birthDate.toISOString(),
+      phone,
+      gender,
+    })
     .eq("id", id);
 
   if (error) {

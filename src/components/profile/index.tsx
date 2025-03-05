@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
@@ -7,16 +8,24 @@ import { Label } from "@/components/ui/label";
 import { useUser } from "@/context/UserContext";
 import { updateProfile } from "@/lib/supabase/actions";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ProfileData() {
   const { user } = useUser();
 
-  // Usamos useMemo para evitar que initialState se recalule en cada render
   const initialState = useMemo(
     () => ({
       name: user?.name || "",
       ci: user?.ci || "",
       fecha_nacimiento: user?.fecha_nacimiento || "",
+      phone: user?.phone || "",
+      gender: user?.gender || "",
     }),
     [user]
   );
@@ -24,36 +33,39 @@ export default function ProfileData() {
   const [formData, setFormData] = useState(initialState);
   const [isChanged, setIsChanged] = useState(false);
 
-  // Actualiza los valores al cambiar el usuario
   useEffect(() => {
     setFormData(initialState);
-  }, [initialState]); // Usamos initialState como dependencia
+  }, [initialState]);
 
-  // Detecta si hay cambios
   useEffect(() => {
     setIsChanged(
       formData.name !== initialState.name ||
         formData.ci !== initialState.ci ||
-        formData.fecha_nacimiento !== initialState.fecha_nacimiento
+        formData.fecha_nacimiento !== initialState.fecha_nacimiento ||
+        formData.phone !== initialState.phone ||
+        formData.gender !== initialState.gender
     );
-  }, [formData, initialState]); // Aseguramos que ambas dependencias estén presentes
+  }, [formData, initialState]);
 
-  // Maneja los cambios en los campos
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Restablece los valores iniciales
+  const handleSelectChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, gender: value }));
+  };
+
   const handleCancel = () => setFormData(initialState);
 
-  // Lógica para guardar los datos
   const handleSave = () => {
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("name", formData.name);
     formDataToSubmit.append("ci", formData.ci);
     formDataToSubmit.append("fecha_nacimiento", formData.fecha_nacimiento);
     formDataToSubmit.append("id", user?.id || "");
+    formDataToSubmit.append("phone", formData.phone);
+    formDataToSubmit.append("gender", formData.gender);
     updateProfile(formDataToSubmit);
     setIsChanged(false);
     setTimeout(() => {
@@ -86,6 +98,16 @@ export default function ProfileData() {
               />
             </div>
             <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input
+                id="phone"
+                placeholder="1234567"
+                value={formData.phone}
+                onChange={handleChange}
+                type="number"
+              />
+            </div>
+            <div className="flex flex-col space-y-1.5">
               <Label htmlFor="fecha_nacimiento">Fecha de nacimiento</Label>
               <Input
                 id="fecha_nacimiento"
@@ -93,6 +115,22 @@ export default function ProfileData() {
                 onChange={handleChange}
                 type="date"
               />
+            </div>
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="gender">Género</Label>
+              <Select
+                value={formData.gender}
+                onValueChange={handleSelectChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona tu género" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Masculino">Masculino</SelectItem>
+                  <SelectItem value="Femenino">Femenino</SelectItem>
+                  <SelectItem value="Otro">Otro</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email">Email</Label>
