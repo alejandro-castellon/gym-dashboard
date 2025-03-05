@@ -1,5 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
 
+export const getUser = async (id: string) => {
+  const supabase = await createClient();
+
+  // Obtener los gimnasios del usuario
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", id)
+    .single(); // Verifica si el usuario está en admin_ids
+
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  return data;
+};
 export const getUserGyms = async () => {
   const supabase = await createClient();
 
@@ -23,7 +39,23 @@ export const getUserGyms = async () => {
   return data;
 };
 
-export const getUserMembership = async () => {
+export const getUserMemberships = async (email: string) => {
+  const supabase = await createClient();
+
+  // Obtener la membresía del usuario, junto con el nombre del gimnasio asociado
+  const { data } = await supabase
+    .from("memberships")
+    .select("*, gyms(name, hours, is_open)")
+    .eq("user_email", email)
+    .order("end_date", { ascending: false });
+  if (!data) {
+    return null;
+  }
+
+  return data; // Aquí obtendrás la membresía con el nombre del gimnasio
+};
+
+export const getActiveUserMembership = async () => {
   const supabase = await createClient();
 
   // Obtener el usuario autenticado
@@ -32,9 +64,9 @@ export const getUserMembership = async () => {
     throw new Error("Usuario no autenticado");
   }
 
-  // Obtener la membresía del usuario, junto con el nombre del gimnasio asociado
-  const { data, error } = await supabase
-    .from("memberships")
+  // Obtener la membresía del usuario
+  const { data } = await supabase
+    .from("active_memberships")
     .select("*, gyms(name, hours, is_open)")
     .eq("user_email", user.user.email)
     .single();
@@ -43,11 +75,7 @@ export const getUserMembership = async () => {
     return null;
   }
 
-  if (error) {
-    throw new Error(`Error al obtener la membresía: ${error.message}`);
-  }
-
-  return data; // Aquí obtendrás la membresía con el nombre del gimnasio
+  return data;
 };
 
 export const getActiveGymMemberships = async () => {
@@ -71,7 +99,7 @@ export const getActiveGymMemberships = async () => {
   // Obtener la membresía del usuario
   const { data } = await supabase
     .from("active_memberships")
-    .select("*, users:users(name, ci)")
+    .select("*, users:users(id, name, ci)")
     .eq("gym_id", gym.id)
     .order("start_date", { ascending: true });
 
@@ -103,7 +131,7 @@ export const getAllGymMemberships = async () => {
   // Obtener la membresía del usuario
   const { data } = await supabase
     .from("memberships")
-    .select("*, users:users(name, ci)")
+    .select("*, users:users(id, name, ci)")
     .eq("gym_id", gym.id)
     .order("start_date", { ascending: false });
 
@@ -159,7 +187,7 @@ export const getUserRole = async () => {
   // Obtener el rol del usuario
   const { data, error } = await supabase
     .from("users")
-    .select("admin")
+    .select("id, admin")
     .eq("id", user.user.id)
     .single();
 
@@ -167,5 +195,5 @@ export const getUserRole = async () => {
     throw new Error(`Error al obtener el rol del usuario: ${error.message}`);
   }
 
-  return data.admin; // true si es admin, false si es usuario normal
+  return data; // true si es admin, false si es usuario normal
 };

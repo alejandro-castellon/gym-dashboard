@@ -22,7 +22,11 @@ export function OpenGymButton({ isOpen, gymId }: OpenGymButtonProps) {
       className={`
         ${isOpen ? "bg-primary" : "bg-destructive"} 
         transition-colors duration-200 
-        ${isOpen ? "hover:bg-destructive" : "hover:bg-primary"}
+        ${
+          isOpen
+            ? "hover:bg-destructive text-white"
+            : "hover:bg-primary text-white"
+        }
       `}
       onClick={handleOpenGym}
       onMouseEnter={() => setIsHovered(true)}

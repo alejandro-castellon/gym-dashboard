@@ -44,6 +44,13 @@ const links = [
     ),
   },
   {
+    label: "Mi Membresía",
+    href: "/dashboard/membership",
+    icon: (
+      <FileUser className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+    ),
+  },
+  {
     label: "Configuración",
     href: "/dashboard/settings",
     icon: (
@@ -65,9 +72,12 @@ export default function NavLinks() {
 
   const filteredLinks = useMemo(() => {
     return isAdmin
-      ? links
+      ? links.filter((link) => link.label !== "Mi Membresía")
       : links.filter(
-          (link) => link.label === "Dashboard" || link.label === "Cerrar sesión"
+          (link) =>
+            link.label === "Dashboard" ||
+            link.label === "Mi Membresía" ||
+            link.label === "Cerrar sesión"
         );
   }, [isAdmin]);
 

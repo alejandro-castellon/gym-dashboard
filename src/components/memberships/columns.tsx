@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 import { Membership } from "@/types";
 
 const membershipTypeLabels: { [key: number]: string } = {
@@ -19,6 +20,39 @@ const membershipTypeLabels: { [key: number]: string } = {
   3: "Semestral",
   4: "Anual",
   5: "Día por medio",
+};
+const getMembershipStatus = (endDate: Date): string => {
+  const currentDate = new Date();
+  const sevenDaysFromNow = new Date(currentDate);
+  sevenDaysFromNow.setDate(currentDate.getDate() + 7);
+
+  const today = currentDate.toISOString().split("T")[0];
+  const endDateString = endDate.toISOString().split("T")[0];
+  const sevenDays = sevenDaysFromNow.toISOString().split("T")[0];
+
+  if (endDateString < today) {
+    return "Expirada";
+  }
+
+  if (endDateString <= sevenDays) {
+    return "Por expirar";
+  }
+
+  return "Activa";
+};
+
+// Helper function to get status color
+const getStatusColor = (status: string): string => {
+  switch (status) {
+    case "Activa":
+      return "text-green-600";
+    case "Por expirar":
+      return "text-yellow-600";
+    case "Expirada":
+      return "text-red-600";
+    default:
+      return "text-gray-600";
+  }
 };
 
 export const columns: ColumnDef<Membership>[] = [
@@ -34,6 +68,20 @@ export const columns: ColumnDef<Membership>[] = [
           Email
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const id = row.original.users?.id; // Asegurarse de que proviene de users
+      const email = row.getValue("user_email");
+      return id ? (
+        <Link
+          href={`/dashboard/clients/${id}`}
+          className="font-bold text-sky-600 hover:text-blue-800"
+        >
+          {email as string}
+        </Link>
+      ) : (
+        <span>{email as string}</span>
       );
     },
   },
@@ -109,6 +157,19 @@ export const columns: ColumnDef<Membership>[] = [
       return `${day < 10 ? `0${day}` : day}/${
         month < 10 ? `0${month}` : month
       }/${year}`;
+    },
+  },
+  {
+    id: "status",
+    header: () => <div className="text-right">Estado</div>,
+    cell: ({ row }) => {
+      const endDate = row.getValue("end_date") as string;
+      const status = getMembershipStatus(new Date(endDate));
+      const statusColor = getStatusColor(status);
+
+      return (
+        <div className={`text-right font-medium ${statusColor}`}>{status}</div>
+      );
     },
   },
   {

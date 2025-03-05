@@ -1,36 +1,36 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import MembershipDashboard from "@/components/dashboard/memberships";
-import GymDashboard from "@/components/dashboard/gyms";
 import { getUserRole } from "@/lib/supabase/data";
+import ClientDashboard from "@/components/dashboard/clients";
+import GymDashboard from "@/components/dashboard/gyms";
 import GymDashboardSkeleton from "@/components/dashboard/gyms/skeleton";
-import MembershipDashboardSkeleton from "@/components/dashboard/memberships/skeleton";
+import MembershipDashboardSkeleton from "@/components/dashboard/clients/skeleton";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-function RoleBasedData(isAdmin: boolean) {
+function RoleBasedData(isAdmin: boolean, id: string) {
   if (isAdmin) {
     return <GymDashboard />;
   } else {
-    return <MembershipDashboard />;
+    return <ClientDashboard id={id} />;
   }
 }
 
 export default async function DashboardPage() {
-  const isAdmin = await getUserRole();
+  const data = await getUserRole();
   return (
     <div>
       <h1 className="text-2xl font-medium mb-4">Dashboard</h1>
       <Suspense
         fallback={
-          (isAdmin && <GymDashboardSkeleton />) || (
+          (data.admin && <GymDashboardSkeleton />) || (
             <MembershipDashboardSkeleton />
           )
         }
       >
-        {RoleBasedData(isAdmin)}
+        {RoleBasedData(data.admin, data.id)}
       </Suspense>
     </div>
   );

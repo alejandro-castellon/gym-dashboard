@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Membership } from "@/types";
+import Link from "next/link";
 
 const membershipTypeLabels: { [key: number]: string } = {
   1: "Mensual",
@@ -34,6 +35,20 @@ export const columns: ColumnDef<Membership>[] = [
           Email
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const id = row.original.users?.id; // Asegurarse de que proviene de users
+      const email = row.getValue("user_email");
+      return id ? (
+        <Link
+          href={`/dashboard/clients/${id}`}
+          className="font-bold text-sky-600 hover:text-blue-800"
+        >
+          {email as string}
+        </Link>
+      ) : (
+        <span>{email as string}</span>
       );
     },
   },

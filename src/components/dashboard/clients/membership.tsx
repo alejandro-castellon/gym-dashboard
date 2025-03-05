@@ -1,5 +1,4 @@
 import { Membership } from "@/types";
-import { getUserMembership } from "@/lib/supabase/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -23,29 +22,32 @@ const weekdayOrder: Record<string, number> = {
   saturday: 6,
   sunday: 7,
 };
+interface MembershipDashboardProps {
+  membership: Membership;
+}
 
-export default async function MembershipDashboard() {
-  const membership: Membership = await getUserMembership();
-
+export default async function MembershipInfo(
+  MembershipDashboardProps: MembershipDashboardProps
+) {
+  const membership: Membership = MembershipDashboardProps.membership;
   const checkMembershipStatus = () => {
     const currentDate = new Date();
-
-    const currentDateString = currentDate.toISOString().split("T")[0];
-
+    const sevenDaysFromNow = new Date(currentDate);
+    sevenDaysFromNow.setDate(currentDate.getDate() + 7);
     const endDate = new Date(membership.end_date);
+    const sevenDaysString = sevenDaysFromNow.toISOString().split("T")[0];
     const endDateString = endDate.toISOString().split("T")[0];
 
-    const timeDiff = endDate.getDate() - currentDate.getDate() + 1;
-    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-    if (endDateString >= currentDateString) {
-      return { status: "Activa", daysLeft };
-    } else return { status: "Vencida", daysLeft: 0 };
+    if (endDateString > sevenDaysString) {
+      return { status: "Activa" };
+    } else {
+      return { status: "Por expirar" };
+    }
   };
 
   if (membership) {
     return (
-      <div className="max-w-3xl mx-auto p-4 space-y-6">
+      <div className="max-w-3xl mx-auto p-4 space-y-6 mt-4">
         {/* Información de la membresía */}
         <Card>
           <CardHeader>
@@ -65,11 +67,11 @@ export default async function MembershipDashboard() {
               className={
                 checkMembershipStatus().status === "Activa"
                   ? "text-green-600"
-                  : "text-red-600"
+                  : "text-yellow-600"
               }
             >
               <strong>Estado:</strong> {checkMembershipStatus().status} (
-              {checkMembershipStatus().daysLeft} días restantes)
+              {membership.days_left} días restantes)
             </p>
           </CardContent>
         </Card>
@@ -113,5 +115,5 @@ export default async function MembershipDashboard() {
     );
   }
 
-  return <div>No hay datos disponibles para tu perfil</div>;
+  return <div>No tienes una membresía activa</div>;
 }

@@ -2,6 +2,8 @@ export interface User {
   id: string; // El ID del usuario, igual al ID de auth de Supabase
   email: string; // El correo del usuario
   name: string; // El nombre del usuario
+  gender: string; // El sexo del usuario
+  phone: string; // El número de teléfono del usuario
   created_at: string; // Fecha de creación del usuario en formato ISO
   fecha_nacimiento: string; // Fecha de nacimiento del usuario en formato ISO
   ci: string; // Carnet de identidad del usuario
@@ -53,7 +55,14 @@ export interface Membership {
   };
   users?: {
     // Información adicional sobre el usuario (opcional si no existe)
+    id: string; // ID del usuario
     name: string; // Nombre del usuario
     ci: string; // Carnet de identidad del usuario
   };
+}
+
+export interface Attendance {
+  id: string;
+  date: string;
+  checkIn: string;
 }

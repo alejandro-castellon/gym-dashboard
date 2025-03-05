@@ -4,7 +4,7 @@ import { DataTableSkeleton } from "@/components/memberships/skeleton";
 import MembershipTable from "@/components/memberships/get-data";
 
 export const metadata: Metadata = {
-  title: "Clientes",
+  title: "Membresias",
 };
 
 export default async function Page() {
