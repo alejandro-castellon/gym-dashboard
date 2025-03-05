@@ -36,7 +36,7 @@ export default function ClientInfo({ client, isActive }: ClientInfoProps) {
         <Avatar className="h-24 w-24">
           <AvatarImage src="https://github.com/shadcn.png" alt={client.name} />
           <AvatarFallback className="text-xl">
-            {getInitials(client.name)}
+            {getInitials(client?.name || "Usuario")}
           </AvatarFallback>
         </Avatar>
         <div className="space-y-1 text-center md:text-left">
