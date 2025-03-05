@@ -3,6 +3,7 @@
 import {
   FileUser,
   LayoutDashboard,
+  MonitorCheck,
   Settings,
   Users,
   UserPlus,
@@ -48,6 +49,13 @@ const links = [
     href: "/dashboard/membership",
     icon: (
       <FileUser className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
+    ),
+  },
+  {
+    label: "Check-In",
+    href: "/dashboard/checkin",
+    icon: (
+      <MonitorCheck className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {

@@ -72,8 +72,8 @@ export default function MembershipHistory({
               className={cn(
                 "rounded-lg border p-4 transition-all",
                 isActive(membership.end_date)
-                  ? "border-green-200 bg-green-50"
-                  : "border-gray-200 bg-white"
+                  ? "border-green-200 bg-green-50 dark:bg-green-900"
+                  : "border-gray-200"
               )}
             >
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">

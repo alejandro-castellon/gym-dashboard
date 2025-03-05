@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Club Manager",
-    default: "Club Manager",
+    template: "%s | Clubs Manager",
+    default: "Clubs Manager",
   },
   description: "The best gym management app.",
 };
