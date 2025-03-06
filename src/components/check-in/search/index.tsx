@@ -2,8 +2,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import NumericKeypad from "./numeric-keypad";
 import NameSearch from "./name-search";
+import { getActiveGymMemberships } from "@/lib/supabase/data";
+import { Membership } from "@/types";
 
-export default function CheckInInterface() {
+export default async function CheckInInterface() {
+  const memberships: Membership[] = (await getActiveGymMemberships()) ?? [];
   return (
     <Card className="overflow-hidden bg-[#102836]">
       <Tabs defaultValue="code" className="w-full">
@@ -21,17 +24,17 @@ export default function CheckInInterface() {
             Buscar por Nombre
           </TabsTrigger>
         </TabsList>
-        <div className="p-6">
+        <div className="p-6 pb-8">
           <h1 className="mb-8 text-center text-3xl font-bold text-white">
             Check-In
           </h1>
           <TabsContent value="code" className="mt-0">
             <div className="space-y-8">
-              <NumericKeypad />
+              <NumericKeypad memberships={memberships} />
             </div>
           </TabsContent>
           <TabsContent value="search" className="mt-0">
-            <NameSearch />
+            <NameSearch memberships={memberships} />
           </TabsContent>
         </div>
       </Tabs>

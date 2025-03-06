@@ -441,6 +441,14 @@ export const createMembership = async (formData: FormData) => {
   );
 };
 
+export const registerAttendance = async (membership_id: string) => {
+  const supabase = await createClient();
+  // Insertar la membresía
+  await supabase.from("attendances").insert({
+    membership_id,
+  });
+};
+
 export const openGym = async (formData: FormData) => {
   const supabase = await createClient();
   const gym_id = formData.get("id")?.toString();

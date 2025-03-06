@@ -38,7 +38,7 @@ export interface GymSettings {
 }
 
 export interface Membership {
-  id: string; // ID de la membresía
+  id: number; // ID de la membresía
   created_at: string; // Fecha de creación de la membresía en formato ISO
   user_email: string; // ID del usuario (quien tiene la membresía)
   gym_id: string; // ID del gimnasio al que está asociada la membresía
@@ -62,7 +62,8 @@ export interface Membership {
 }
 
 export interface Attendance {
-  id: string;
-  date: string;
-  checkIn: string;
+  attendance_id: string;
+  attendance_date: string;
+  check_in: string;
+  user_name?: string;
 }

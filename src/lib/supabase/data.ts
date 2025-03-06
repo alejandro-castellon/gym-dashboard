@@ -142,6 +142,37 @@ export const getAllGymMemberships = async () => {
   return data;
 };
 
+export const getRecentGymCheckins = async () => {
+  const supabase = await createClient();
+
+  // Obtener el usuario autenticado
+  const { data: user, error: userError } = await supabase.auth.getUser();
+  if (userError || !user?.user) {
+    throw new Error("Usuario no autenticado");
+  }
+
+  // Obtener el gimnasio del usuario
+  const { data: gym, error: gymError } = await supabase
+    .from("gyms")
+    .select("id")
+    .contains("admin_ids", [user.user.id])
+    .single();
+  if (gymError || !gym.id) {
+    throw new Error("Gym no encontrado");
+  }
+
+  const { data, error } = await supabase.rpc("get_recent_gym_checkins", {
+    gymid: gym.id,
+  });
+
+  if (error) {
+    console.error("Error al obtener las asistencias:", error);
+    return [];
+  }
+
+  return data;
+};
+
 export const getGymSettings = async () => {
   const supabase = await createClient();
 

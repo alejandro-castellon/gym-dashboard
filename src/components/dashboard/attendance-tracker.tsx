@@ -53,7 +53,7 @@ export default function AttendanceTracker({
       day
     );
     return attendanceData.some(
-      (a) => new Date(a.date).toDateString() === date.toDateString()
+      (a) => new Date(a.attendance_date).toDateString() === date.toDateString()
     );
   };
 
@@ -65,15 +65,15 @@ export default function AttendanceTracker({
       day
     );
     return attendanceData.filter(
-      (a) => new Date(a.date).toDateString() === date.toDateString()
+      (a) => new Date(a.attendance_date).toDateString() === date.toDateString()
     );
   };
 
   // Calculate attendance statistics
   const totalAttendancesThisMonth = attendanceData.filter(
     (a) =>
-      new Date(a.date).getMonth() === currentMonth.getMonth() &&
-      new Date(a.date).getFullYear() === currentMonth.getFullYear()
+      new Date(a.attendance_date).getMonth() === currentMonth.getMonth() &&
+      new Date(a.attendance_date).getFullYear() === currentMonth.getFullYear()
   ).length;
 
   const attendanceRate = Math.round(
@@ -127,7 +127,7 @@ export default function AttendanceTracker({
                 title={
                   attended
                     ? `Asistió: ${attendanceDetails
-                        .map((a) => a.checkIn)
+                        .map((a) => a.check_in)
                         .join(", ")}`
                     : "No asistió"
                 }

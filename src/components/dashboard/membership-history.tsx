@@ -72,7 +72,7 @@ export default function MembershipHistory({
               className={cn(
                 "rounded-lg border p-4 transition-all",
                 isActive(membership.end_date)
-                  ? "border-green-200 bg-green-50 dark:bg-green-900"
+                  ? "border-green-200 bg-green-100 dark:bg-green-900"
                   : "border-gray-200"
               )}
             >
@@ -94,7 +94,7 @@ export default function MembershipHistory({
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-300">
                     {realDate(membership.start_date)} -{" "}
                     {realDate(membership.end_date)}
                   </p>
@@ -102,17 +102,23 @@ export default function MembershipHistory({
 
                 <div className="flex flex-wrap items-center gap-4">
                   <div>
-                    <p className="text-sm text-gray-500">Precio</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300">
+                      Precio
+                    </p>
                     <p className="font-medium">
                       Bs {membership.price.toFixed(2)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Método de pago</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300">
+                      Método de pago
+                    </p>
                     <p className="font-medium">Efectivo</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Pagado</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300">
+                      Pagado
+                    </p>
                     <CheckCircle className="h-5 w-5 text-green-500" />
                   </div>
                 </div>

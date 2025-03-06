@@ -12,73 +12,7 @@ export const metadata: Metadata = {
   title: "Cliente",
 };
 
-const attendanceData: Attendance[] = [
-  {
-    id: "1",
-    date: "2025-03-01",
-    checkIn: "08:30",
-  },
-  {
-    id: "2",
-    date: "2025-03-03",
-    checkIn: "17:45",
-  },
-  {
-    id: "3",
-    date: "2025-03-05",
-    checkIn: "16:00",
-  },
-  {
-    id: "4",
-    date: "2025-03-07",
-    checkIn: "07:15",
-  },
-  {
-    id: "5",
-    date: "2025-03-10",
-    checkIn: "18:30",
-  },
-  {
-    id: "6",
-    date: "2025-03-12",
-    checkIn: "16:45",
-  },
-  {
-    id: "7",
-    date: "2025-03-14",
-    checkIn: "08:00",
-  },
-  {
-    id: "8",
-    date: "2025-03-17",
-    checkIn: "17:30",
-  },
-  {
-    id: "9",
-    date: "2025-03-19",
-    checkIn: "16:15",
-  },
-  {
-    id: "10",
-    date: "2025-03-21",
-    checkIn: "07:45",
-  },
-  {
-    id: "11",
-    date: "2025-03-24",
-    checkIn: "18:00",
-  },
-  {
-    id: "12",
-    date: "2025-03-26",
-    checkIn: "16:30",
-  },
-  {
-    id: "13",
-    date: "2025-03-28",
-    checkIn: "08:15",
-  },
-];
+const attendanceData: Attendance[] = [];
 interface MembershipDashboardProps {
   id: string;
 }
