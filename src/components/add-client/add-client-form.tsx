@@ -191,7 +191,7 @@ export default function AddClient({ data }: SettingsFormProps) {
                   <SelectGroup>
                     <SelectLabel>Membresía</SelectLabel>
                     {data.gymPrices
-                      .filter((price) => price.price !== null) // Filtra los precios nulos
+                      .filter((price) => !isNaN(price.price)) // Filtra los precios nulos
                       .map(({ membership_type_id }) => (
                         <SelectItem
                           key={membership_type_id}

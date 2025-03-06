@@ -158,6 +158,8 @@ export default function NumericKeypad({ memberships }: MembershipHistoryProps) {
               <AlertDialogDescription>
                 Usuario: {selectedMembership.users?.name}
                 <br />
+                Dias restantes: {selectedMembership.days_left}
+                <br />
                 Esta acción no se puede deshacer.
               </AlertDialogDescription>
             </AlertDialogHeader>

@@ -248,17 +248,12 @@ export const updateGymData = async (formData: FormData) => {
 
   // Obtener los precios de las membresías
   const gymPrices = [
-    { membership_type_id: 1, price: formData.get("price_1")?.toString() },
-    { membership_type_id: 2, price: formData.get("price_2")?.toString() },
-    { membership_type_id: 3, price: formData.get("price_3")?.toString() },
-    { membership_type_id: 4, price: formData.get("price_4")?.toString() },
-    { membership_type_id: 5, price: formData.get("price_5")?.toString() },
+    { membership_type_id: 1, price: formData.get("price_1") },
+    { membership_type_id: 2, price: formData.get("price_2") },
+    { membership_type_id: 3, price: formData.get("price_3") },
+    { membership_type_id: 4, price: formData.get("price_4") },
+    { membership_type_id: 5, price: formData.get("price_5") },
   ];
-
-  // Filtrar precios vacíos
-  const filteredPrices = gymPrices.filter(
-    (price) => price.price && !isNaN(parseFloat(price.price))
-  );
 
   // Validar campos
   if (!name || Object.keys(gym_hours).length === 0) {
@@ -293,11 +288,11 @@ export const updateGymData = async (formData: FormData) => {
   }
 
   // Crear o actualizar los precios de las membresías
-  for (const { membership_type_id, price } of filteredPrices) {
+  for (const { membership_type_id, price } of gymPrices) {
     const { error: priceError } = await supabase
       .from("gym_prices")
       .update({
-        price: parseFloat(price ?? "0"), // Guardamos el precio como número
+        price: price, // Guardamos el precio como número
       })
       .eq("membership_type_id", membership_type_id)
       .eq("gym_id", gym.id);

@@ -107,6 +107,8 @@ export default function NameSearch({ memberships }: MembershipHistoryProps) {
                         <AlertDialogDescription>
                           Usuario: {member.users?.name}
                           <br />
+                          Dias restantes: {member.days_left}
+                          <br />
                           Esta acción no se puede deshacer.
                         </AlertDialogDescription>
                       </AlertDialogHeader>

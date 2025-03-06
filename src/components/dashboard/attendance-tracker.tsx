@@ -136,7 +136,7 @@ export default function AttendanceTracker({
                   "flex h-12 flex-col items-center justify-center rounded-md p-1 text-sm",
                   attended
                     ? "bg-green-100 font-medium text-green-800"
-                    : "bg-gray-50 text-gray-500"
+                    : "bg-gray-50 text-gray-500 dark:bg-gray-800"
                 )}
                 title={
                   attended
