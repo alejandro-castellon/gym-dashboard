@@ -1,5 +1,9 @@
 import { Metadata } from "next";
-import { getUser, getUserMemberships } from "@/lib/supabase/data";
+import {
+  getUser,
+  getUserMemberships,
+  getUserCheckins,
+} from "@/lib/supabase/data";
 import { Membership, User } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,8 +16,6 @@ export const metadata: Metadata = {
   title: "Cliente",
 };
 
-const attendanceData: Attendance[] = [];
-
 export default async function Page({
   params,
 }: {
@@ -23,6 +25,10 @@ export default async function Page({
   const user: User = await getUser(id);
   const memberships: Membership[] =
     (await getUserMemberships(user.email)) || [];
+  const attendanceData: Attendance[] = await getUserCheckins(
+    memberships.map((m) => m.id)
+  );
+
   const isActive = () => {
     const currentDate = new Date();
     const endDate = new Date(memberships[0].end_date);

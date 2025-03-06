@@ -42,38 +42,52 @@ export default function AttendanceTracker({
   const monthName = currentMonth.toLocaleString("es-ES", { month: "long" });
   const year = currentMonth.getFullYear();
 
-  // Create array of days in month
+  // Formatear hora en formato 12 horas AM/PM
+  const formatTime = (dateString: string, timeString: string) => {
+    if (!dateString || !timeString) return "Fecha no disponible";
+    const cleanTime = timeString.split(".")[0]; // "00:36:15"
+
+    // Unimos la fecha y la hora en formato ISO
+    const date = new Date(`${dateString}T${cleanTime}`);
+    return date.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+  // Crear array de días en el mes
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  // Check if client attended on a specific day
+  // Verificar si hay asistencia en un día específico
   const hasAttendance = (day: number) => {
     const date = new Date(
       currentMonth.getFullYear(),
       currentMonth.getMonth(),
       day
-    );
-    return attendanceData.some(
-      (a) => new Date(a.attendance_date).toDateString() === date.toDateString()
-    );
+    )
+      .toISOString()
+      .split("T")[0]; // Convertir a formato YYYY-MM-DD
+    return attendanceData.some((a) => a.date.split("T")[0] === date);
   };
 
-  // Get attendance details for a specific day
+  // Obtener detalles de asistencia para un día específico
   const getAttendanceDetails = (day: number) => {
     const date = new Date(
       currentMonth.getFullYear(),
       currentMonth.getMonth(),
       day
-    );
-    return attendanceData.filter(
-      (a) => new Date(a.attendance_date).toDateString() === date.toDateString()
-    );
+    )
+      .toISOString()
+      .split("T")[0];
+    return attendanceData.filter((a) => a.date.split("T")[0] === date);
   };
 
-  // Calculate attendance statistics
+  // Calcular estadísticas de asistencia
   const totalAttendancesThisMonth = attendanceData.filter(
     (a) =>
-      new Date(a.attendance_date).getMonth() === currentMonth.getMonth() &&
-      new Date(a.attendance_date).getFullYear() === currentMonth.getFullYear()
+      new Date(a.date).getMonth() === currentMonth.getMonth() &&
+      new Date(a.date).getFullYear() === currentMonth.getFullYear()
   ).length;
 
   const attendanceRate = Math.round(
@@ -127,7 +141,7 @@ export default function AttendanceTracker({
                 title={
                   attended
                     ? `Asistió: ${attendanceDetails
-                        .map((a) => a.check_in)
+                        .map((a) => formatTime(a.date, a.check_in))
                         .join(", ")}`
                     : "No asistió"
                 }

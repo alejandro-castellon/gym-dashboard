@@ -62,8 +62,8 @@ export interface Membership {
 }
 
 export interface Attendance {
-  attendance_id: string;
-  attendance_date: string;
+  id: string;
+  date: string;
   check_in: string;
   user_name?: string;
 }

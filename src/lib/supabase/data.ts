@@ -55,6 +55,23 @@ export const getUserMemberships = async (email: string) => {
   return data; // Aquí obtendrás la membresía con el nombre del gimnasio
 };
 
+export const getUserCheckins = async (memberships: number[]) => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("attendances")
+    .select("*")
+    .in("membership_id", memberships)
+    .order("check_in", { ascending: false });
+
+  if (error) {
+    console.error("Error al obtener las asistencias:", error);
+    return [];
+  }
+
+  return data;
+};
+
 export const getActiveUserMembership = async () => {
   const supabase = await createClient();
 

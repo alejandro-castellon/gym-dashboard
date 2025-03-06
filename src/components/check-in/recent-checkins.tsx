@@ -47,12 +47,12 @@ export default async function RecentCheckIns() {
           </TableHeader>
           <TableBody>
             {checkins.map((checkin) => (
-              <TableRow key={checkin.attendance_id}>
+              <TableRow key={checkin.id}>
                 <TableCell className="font-medium">
                   {checkin.user_name}
                 </TableCell>
                 <TableCell className="text-left">
-                  {formatDateTime(checkin.attendance_date, checkin.check_in)}
+                  {formatDateTime(checkin.date, checkin.check_in)}
                 </TableCell>
               </TableRow>
             ))}
