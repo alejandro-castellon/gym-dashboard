@@ -21,14 +21,19 @@ const membershipTypeLabels: { [key: number]: string } = {
   4: "Anual",
   5: "Día por medio",
 };
-const getMembershipStatus = (endDate: Date): string => {
+const getMembershipStatus = (endDate: Date, startDate: Date): string => {
   const currentDate = new Date();
   const sevenDaysFromNow = new Date(currentDate);
   sevenDaysFromNow.setDate(currentDate.getDate() + 7);
 
   const today = currentDate.toISOString().split("T")[0];
   const endDateString = endDate.toISOString().split("T")[0];
+  const startDateString = startDate.toISOString().split("T")[0];
   const sevenDays = sevenDaysFromNow.toISOString().split("T")[0];
+
+  if (startDateString > today) {
+    return "Por iniciar";
+  }
 
   if (endDateString < today) {
     return "Expirada";
@@ -164,7 +169,11 @@ export const columns: ColumnDef<Membership>[] = [
     header: () => <div className="text-right">Estado</div>,
     cell: ({ row }) => {
       const endDate = row.getValue("end_date") as string;
-      const status = getMembershipStatus(new Date(endDate));
+      const startDate = row.getValue("start_date") as string;
+      const status = getMembershipStatus(
+        new Date(endDate),
+        new Date(startDate)
+      );
       const statusColor = getStatusColor(status);
 
       return (

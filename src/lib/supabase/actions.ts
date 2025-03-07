@@ -111,7 +111,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!password || !confirmPassword) {
-    encodedRedirect(
+    return encodedRedirect(
       "error",
       "/dashboard/reset-password",
       "Password and confirm password are required"
@@ -119,7 +119,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   }
 
   if (password !== confirmPassword) {
-    encodedRedirect(
+    return encodedRedirect(
       "error",
       "/dashboard/reset-password",
       "Passwords do not match"
@@ -131,14 +131,18 @@ export const resetPasswordAction = async (formData: FormData) => {
   });
 
   if (error) {
-    encodedRedirect(
+    return encodedRedirect(
       "error",
       "/dashboard/reset-password",
       "Password update failed"
     );
   }
 
-  encodedRedirect("success", "/dashboard/reset-password", "Password updated");
+  return encodedRedirect(
+    "success",
+    "/dashboard/reset-password",
+    "Password updated"
+  );
 };
 
 export const updateEmailAction = async (formData: FormData) => {
@@ -388,7 +392,8 @@ export const createMembership = async (formData: FormData) => {
     .from("active_memberships")
     .select("id")
     .eq("user_email", email)
-    .eq("gym_id", gym_id);
+    .eq("gym_id", gym_id)
+    .or(`and(start_date.lte.${end_date}, end_date.gte.${start_date})`);
   if (membershipError) {
     console.error(membershipError.message);
     return encodedRedirect(
@@ -399,11 +404,11 @@ export const createMembership = async (formData: FormData) => {
   }
 
   // Si existe una membresía en las mismas fechas, retornar error
-  if (existingMemberships && existingMemberships.length > 0) {
+  if (existingMemberships.length) {
     return encodedRedirect(
       "error",
       "/dashboard/add-client",
-      "Ya existe una membresía para este cliente durante esas fechas"
+      "Ya existe una membresía activa en ese rango de fechas para este cliente"
     );
   }
 
