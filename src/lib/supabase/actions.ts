@@ -385,13 +385,10 @@ export const createMembership = async (formData: FormData) => {
 
   // Validar si ya existe una membresía para el mismo cliente y gimnasio en las mismas fechas
   const { data: existingMemberships, error: membershipError } = await supabase
-    .from("memberships")
+    .from("active_memberships")
     .select("id")
     .eq("user_email", email)
-    .eq("gym_id", gym_id)
-    .or(
-      `and(start_date.lte.${end_date}, end_date.gte.${start_date})` // Verificar solapamientos en cualquier parte del rango
-    );
+    .eq("gym_id", gym_id);
   if (membershipError) {
     console.error(membershipError.message);
     return encodedRedirect(

@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Membership } from "@/types";
 import { registerAttendance } from "@/lib/supabase/actions";
+import { checkIfAlreadyCheckedIn } from "@/lib/supabase/data";
 
 interface MembershipHistoryProps {
   memberships: Membership[];
@@ -39,14 +40,28 @@ export default function NameSearch({ memberships }: MembershipHistoryProps) {
 
   const handleCheckIn = async () => {
     if (!selectedMembership) return;
+    try {
+      // Verificar si el usuario ya hizo check-in hoy
+      const alreadyCheckedIn = await checkIfAlreadyCheckedIn(
+        selectedMembership
+      );
 
-    await registerAttendance(selectedMembership.toString());
-    setMessage("✅ Check-in realizado correctamente");
-    setSearchTerm("");
-    router.push("/dashboard/checkin");
-    setTimeout(() => {
-      setMessage(null);
-    }, 5000);
+      if (alreadyCheckedIn) {
+        setMessage("❌ El miembro ya ha registrado su asistencia hoy.");
+        return;
+      }
+
+      await registerAttendance(selectedMembership.toString());
+      setMessage("✅ Check-in realizado correctamente");
+      setSearchTerm("");
+    } catch (error) {
+      setMessage(`❌ Error al registrar asistencia: ${error}`);
+    } finally {
+      router.push("/dashboard/checkin");
+      setTimeout(() => {
+        setMessage(null);
+      }, 4000);
+    }
   };
 
   const filteredMemberships = memberships.filter((member) =>

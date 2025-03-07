@@ -1,3 +1,4 @@
+"use server";
 import { createClient } from "@/lib/supabase/server";
 
 export const getUser = async (id: string) => {
@@ -188,6 +189,26 @@ export const getRecentGymCheckins = async () => {
   }
 
   return data;
+};
+
+export const checkIfAlreadyCheckedIn = async (membershipId: number) => {
+  const supabase = await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Eliminar la hora para comparar solo la fecha
+
+  // Buscar registros de asistencia de hoy
+  const { data, error } = await supabase
+    .from("attendances")
+    .select("id, date")
+    .eq("membership_id", membershipId)
+    .gte("date", today.toISOString());
+
+  if (error) {
+    console.error("Error al verificar asistencia:", error);
+    return false;
+  }
+
+  return data.length > 0; // Retorna `true` si ya hay un registro de hoy
 };
 
 export const getGymSettings = async () => {

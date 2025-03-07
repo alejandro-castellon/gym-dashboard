@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { registerAttendance } from "@/lib/supabase/actions";
+import { checkIfAlreadyCheckedIn } from "@/lib/supabase/data";
 
 interface MembershipHistoryProps {
   memberships: Membership[];
@@ -65,19 +66,26 @@ export default function NumericKeypad({ memberships }: MembershipHistoryProps) {
     setMessage("");
 
     try {
+      // Verificar si el usuario ya hizo check-in hoy
+      const alreadyCheckedIn = await checkIfAlreadyCheckedIn(
+        selectedMembership.id
+      );
+
+      if (alreadyCheckedIn) {
+        setMessage("❌ El miembro ya ha registrado su asistencia hoy.");
+        setIsLoading(false);
+        return;
+      }
+
       // Llamada a la función para registrar la asistencia
       await registerAttendance(selectedMembership.id.toString());
       setMessage("✅ Check-in realizado correctamente");
-      setCi("");
       setSelectedMembership(null);
     } catch (error) {
       setMessage(`❌ Error al registrar asistencia: ${error}`);
     } finally {
       setIsLoading(false);
       router.push("/dashboard/checkin");
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
     }
   };
 
