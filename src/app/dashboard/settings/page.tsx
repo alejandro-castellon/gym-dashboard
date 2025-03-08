@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Metadata } from "next";
 import SettingsForm from "@/components/settings";
 import {
@@ -9,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FormMessage, Message } from "@/components/auth/form-message";
-import SettingsDataSkeleton from "@/components/settings/skeleton";
 
 export const metadata: Metadata = {
   title: "Configuración",
@@ -24,11 +22,7 @@ export default async function page(props: { searchParams: Promise<Message> }) {
         <CardTitle>Configuración</CardTitle>
         <CardDescription>Edita la información de tu gimnasio.</CardDescription>
       </CardHeader>
-
-      <Suspense fallback={<SettingsDataSkeleton />}>
-        <SettingsForm />
-      </Suspense>
-
+      <SettingsForm />
       <CardFooter>
         <FormMessage message={searchParams} />
       </CardFooter>

@@ -11,8 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Membership } from "@/types";
 import Link from "next/link";
+import { Membership } from "@/types";
 
 const membershipTypeLabels: { [key: number]: string } = {
   1: "Mensual",
@@ -20,6 +20,44 @@ const membershipTypeLabels: { [key: number]: string } = {
   3: "Semestral",
   4: "Anual",
   5: "Día por medio",
+};
+const getMembershipStatus = (endDate: Date, startDate: Date): string => {
+  const currentDate = new Date();
+  const sevenDaysFromNow = new Date(currentDate);
+  sevenDaysFromNow.setDate(currentDate.getDate() + 7);
+
+  const today = currentDate.toISOString().split("T")[0];
+  const endDateString = endDate.toISOString().split("T")[0];
+  const startDateString = startDate.toISOString().split("T")[0];
+  const sevenDays = sevenDaysFromNow.toISOString().split("T")[0];
+
+  if (startDateString > today) {
+    return "Por iniciar";
+  }
+
+  if (endDateString < today) {
+    return "Expirada";
+  }
+
+  if (endDateString <= sevenDays) {
+    return "Por expirar";
+  }
+
+  return "Activa";
+};
+
+// Helper function to get status color
+const getStatusColor = (status: string): string => {
+  switch (status) {
+    case "Activa":
+      return "text-green-600";
+    case "Por expirar":
+      return "text-yellow-600";
+    case "Expirada":
+      return "text-red-600";
+    default:
+      return "text-gray-600";
+  }
 };
 
 export const columns: ColumnDef<Membership>[] = [
@@ -42,7 +80,7 @@ export const columns: ColumnDef<Membership>[] = [
       const email = row.getValue("user_email");
       return id ? (
         <Link
-          href={`/dashboard/clients/${id}`}
+          href={`/dashboard/members/${id}`}
           className="font-bold text-sky-600 hover:text-blue-800"
         >
           {email as string}
@@ -127,23 +165,20 @@ export const columns: ColumnDef<Membership>[] = [
     },
   },
   {
-    accessorKey: "days_left",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="pl-0"
-        >
-          Días restantes
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    id: "status",
+    header: () => <div className="text-right">Estado</div>,
     cell: ({ row }) => {
-      const daysLeft = row.getValue("days_left") as number;
-      const textColor = daysLeft < 7 ? "text-red-500" : "text-green-500";
-      return <div className={`${textColor}`}>{daysLeft}</div>;
+      const endDate = row.getValue("end_date") as string;
+      const startDate = row.getValue("start_date") as string;
+      const status = getMembershipStatus(
+        new Date(endDate),
+        new Date(startDate)
+      );
+      const statusColor = getStatusColor(status);
+
+      return (
+        <div className={`text-right font-medium ${statusColor}`}>{status}</div>
+      );
     },
   },
   {

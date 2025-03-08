@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import CheckInInterface from "@/components/check-in/search";
 import RecentCheckIns from "@/components/check-in/recent-checkins";
+import { Suspense } from "react";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 export const metadata: Metadata = {
   title: "Check-in",
@@ -15,7 +17,9 @@ export default function CheckInPage() {
           <CheckInInterface />
         </div>
         <div className="lg:col-span-2">
-          <RecentCheckIns />
+          <Suspense fallback={<LoadingSpinner />}>
+            <RecentCheckIns />
+          </Suspense>
         </div>
       </div>
     </main>

@@ -24,24 +24,17 @@ const links = [
     ),
   },
   {
-    label: "Clientes",
-    href: "/dashboard/clients",
+    label: "Miembros",
+    href: "/dashboard/members",
     icon: (
       <Users className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {
-    label: "Agregar cliente",
-    href: "/dashboard/add-client",
+    label: "Agregar miembro",
+    href: "/dashboard/add-member",
     icon: (
       <UserPlus className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
-    ),
-  },
-  {
-    label: "Membresías",
-    href: "/dashboard/memberships",
-    icon: (
-      <FileUser className="text-neutral-700 dark:text-neutral-200 h-6 w-6 flex-shrink-0" />
     ),
   },
   {

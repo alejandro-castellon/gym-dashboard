@@ -33,7 +33,7 @@ const membershipTypes: Record<number, string> = {
   5: "Día por medio mensual",
 };
 
-export default function AddClient({ data }: SettingsFormProps) {
+export default function AddMember({ data }: SettingsFormProps) {
   const getTodayDate = () => new Date().toISOString().split("T")[0];
 
   const getEndDateByMembership = (

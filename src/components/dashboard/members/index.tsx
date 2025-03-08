@@ -1,4 +1,3 @@
-import { Metadata } from "next";
 import {
   getUser,
   getUserMemberships,
@@ -12,15 +11,11 @@ import AttendanceTracker from "@/components/dashboard/attendance-tracker";
 import MembershipHistory from "@/components/dashboard/membership-history";
 import { Attendance } from "@/types";
 
-export const metadata: Metadata = {
-  title: "Cliente",
-};
-
 interface MembershipDashboardProps {
   id: string;
 }
 
-export default async function ClientDashboard(props: MembershipDashboardProps) {
+export default async function MemberDashboard(props: MembershipDashboardProps) {
   const user: User = await getUser(props.id);
   const memberships: Membership[] =
     (await getUserMemberships(user.email)) || [];
@@ -38,7 +33,7 @@ export default async function ClientDashboard(props: MembershipDashboardProps) {
   };
 
   return (
-    <main className="space-y-6 mt-6">
+    <main className="space-y-6">
       <Card className="p-6">
         <ClientInfo client={user} isActive={isActive()} />
       </Card>

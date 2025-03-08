@@ -2,11 +2,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { User, Gym, GymSettings, Membership, Attendance } from "@/types";
 
-// Crear una instancia única del cliente supabase
-const supabasePromise = createClient();
-
 const getAuthenticatedUser = async () => {
-  const supabase = await supabasePromise;
+  const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) {
     throw new Error("Usuario no autenticado");
@@ -14,25 +11,8 @@ const getAuthenticatedUser = async () => {
   return data.user;
 };
 
-const getGymId = async () => {
-  const supabase = await supabasePromise;
-  // Obtener el usuario autenticado
-  const user = await getAuthenticatedUser();
-
-  // Obtener el gimnasio del usuario
-  const { data: gym, error: gymError } = await supabase
-    .from("gyms")
-    .select("id")
-    .contains("admin_ids", [user.id])
-    .single();
-  if (gymError || !gym) {
-    throw new Error("Gym no encontrado");
-  }
-  return gym.id;
-};
-
 export const getUser = async (id: string): Promise<User> => {
-  const supabase = await supabasePromise;
+  const supabase = await createClient();
   const { data } = await supabase
     .from("users")
     .select("*")
@@ -45,16 +25,14 @@ export const getUser = async (id: string): Promise<User> => {
 
   return data;
 };
-export const getUserGyms = async (): Promise<Gym> => {
-  const supabase = await supabasePromise;
-  // Obtener el usuario autenticado
-  const user = await getAuthenticatedUser();
+export const getUserGyms = async (userId: string): Promise<Gym> => {
+  const supabase = await createClient();
 
   // Obtener los gimnasios del usuario
   const { data } = await supabase
     .from("gyms")
     .select("*")
-    .contains("admin_ids", [user.id])
+    .contains("admin_ids", [userId])
     .single(); // Verifica si el usuario está en admin_ids
 
   if (!data || data.length === 0) {
@@ -67,7 +45,7 @@ export const getUserGyms = async (): Promise<Gym> => {
 export const getUserMemberships = async (
   email: string
 ): Promise<Membership[]> => {
-  const supabase = await supabasePromise;
+  const supabase = await createClient();
   // Obtener la membresía del usuario, junto con el nombre del gimnasio asociado
   const { data } = await supabase
     .from("memberships")
@@ -84,7 +62,7 @@ export const getUserMemberships = async (
 export const getUserCheckins = async (
   memberships: number[]
 ): Promise<Attendance[]> => {
-  const supabase = await supabasePromise;
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("attendances")
     .select("*")
@@ -100,7 +78,7 @@ export const getUserCheckins = async (
 };
 
 export const getActiveUserMembership = async (): Promise<Membership> => {
-  const supabase = await supabasePromise;
+  const supabase = await createClient();
   // Obtener el usuario autenticado
   const user = await getAuthenticatedUser();
 
@@ -118,10 +96,10 @@ export const getActiveUserMembership = async (): Promise<Membership> => {
   return data;
 };
 
-export const getActiveGymMemberships = async (): Promise<Membership[]> => {
-  const supabase = await supabasePromise;
-  // Obtener el gimnasio del usuario
-  const gymId = await getGymId();
+export const getActiveGymMemberships = async (
+  gymId: number
+): Promise<Membership[]> => {
+  const supabase = await createClient();
 
   // Obtener la membresía del usuario
   const { data } = await supabase
@@ -137,10 +115,10 @@ export const getActiveGymMemberships = async (): Promise<Membership[]> => {
   return data;
 };
 
-export const getAllGymMemberships = async (): Promise<Membership[]> => {
-  const supabase = await supabasePromise;
-  // Obtener el gimnasio del usuario
-  const gymId = await getGymId();
+export const getAllGymMemberships = async (
+  gymId: number
+): Promise<Membership[]> => {
+  const supabase = await createClient();
 
   // Obtener la membresía del usuario
   const { data } = await supabase
@@ -157,12 +135,23 @@ export const getAllGymMemberships = async (): Promise<Membership[]> => {
 };
 
 export const getRecentGymCheckins = async (): Promise<Attendance[]> => {
-  const supabase = await supabasePromise;
-  // Obtener el gimnasio del usuario
-  const gymId = await getGymId();
+  const supabase = await createClient();
+
+  const user = await getAuthenticatedUser();
+
+  // Obtener los gimnasios del usuario
+  const { data: gym } = await supabase
+    .from("gyms")
+    .select("id")
+    .contains("admin_ids", [user.id])
+    .single(); // Verifica si el usuario está en admin_ids
+
+  if (!gym) {
+    throw new Error("Gym no encontrado");
+  }
 
   const { data, error } = await supabase.rpc("get_recent_gym_checkins", {
-    gymid: gymId,
+    gymid: gym.id,
   });
 
   if (error) {
@@ -176,7 +165,7 @@ export const getRecentGymCheckins = async (): Promise<Attendance[]> => {
 export const checkIfAlreadyCheckedIn = async (
   membershipId: number
 ): Promise<boolean> => {
-  const supabase = await supabasePromise;
+  const supabase = await createClient();
 
   // Buscar registros de asistencia de hoy
   const { data, error } = await supabase
@@ -193,37 +182,27 @@ export const checkIfAlreadyCheckedIn = async (
   return data.length > 0; // Retorna `true` si ya hay un registro de hoy
 };
 
-export const getGymSettings = async (): Promise<GymSettings> => {
-  const supabase = await supabasePromise;
-  // Obtener el usuario autenticado
-  const user = await getAuthenticatedUser();
+export const getGymSettings = async (gymId: number): Promise<GymSettings> => {
+  const supabase = await createClient();
 
-  // Obtener el gimnasio del usuario con solo name y hours
-  const { data: gym, error: gymError } = await supabase
+  const { data, error } = await supabase
     .from("gyms")
-    .select("id, name, hours")
-    .contains("admin_ids", [user.id])
+    .select("id, name, hours, gym_prices(*)")
+    .eq("id", gymId)
     .single();
 
-  if (gymError || !gym) {
-    return {} as GymSettings;
+  if (error || !data) {
+    throw new Error("Error al obtener los datos del gimnasio");
   }
 
-  // Obtener los precios del gimnasio
-  const { data: gymPrices, error: pricesError } = await supabase
-    .from("gym_prices")
-    .select("*")
-    .eq("gym_id", gym.id);
-
-  if (pricesError) {
-    throw new Error("Error al obtener los precios del gimnasio");
-  }
-
-  return { ...gym, gymPrices };
+  return {
+    ...data,
+    gymPrices: data.gym_prices ?? [], // Asegura que sea un array vacío si no hay precios
+  };
 };
 
 export const getUserRole = async () => {
-  const supabase = await supabasePromise;
+  const supabase = await createClient();
   // Obtener el usuario autenticado
   const user = await getAuthenticatedUser();
 

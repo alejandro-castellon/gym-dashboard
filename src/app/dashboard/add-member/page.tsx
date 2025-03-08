@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import AddClientForm from "@/components/add-client";
+import AddMemberForm from "@/components/add-member";
 import {
   Card,
   CardDescription,
@@ -10,7 +10,7 @@ import {
 import { FormMessage, Message } from "@/components/auth/form-message";
 
 export const metadata: Metadata = {
-  title: "Agregar cliente",
+  title: "Agregar miembro",
 };
 
 export default async function page(props: { searchParams: Promise<Message> }) {
@@ -18,10 +18,10 @@ export default async function page(props: { searchParams: Promise<Message> }) {
   return (
     <Card className="md:w-2/5">
       <CardHeader>
-        <CardTitle>Agregar cliente</CardTitle>
-        <CardDescription>Introduce la información del cliente.</CardDescription>
+        <CardTitle>Agregar miembro</CardTitle>
+        <CardDescription>Introduce la información del miembro.</CardDescription>
       </CardHeader>
-      <AddClientForm />
+      <AddMemberForm />
       <CardFooter>
         <FormMessage message={searchParams} />
       </CardFooter>

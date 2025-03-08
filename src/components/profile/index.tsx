@@ -15,9 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import LoadingSpinner from "../ui/loading-spinner";
 
 export default function ProfileData() {
-  const { user } = useUser();
+  const { user, loading } = useUser();
 
   const initialState = useMemo(
     () => ({
@@ -72,6 +73,8 @@ export default function ProfileData() {
       window.location.reload();
     }, 500);
   };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div>

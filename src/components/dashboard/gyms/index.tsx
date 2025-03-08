@@ -13,9 +13,14 @@ import { RecentClients } from "./recent-clients";
 import { Overview } from "./overview";
 import { OpenGymButton } from "./open-gym";
 
-export default async function GymDashboard() {
-  const gym: Gym = await getUserGyms();
-  const memberships: Membership[] = (await getAllGymMemberships()) || [];
+interface GymDashboardProps {
+  id: string;
+}
+
+export default async function GymDashboard(props: GymDashboardProps) {
+  const gym: Gym = await getUserGyms(props.id);
+  const memberships: Membership[] =
+    (await getAllGymMemberships(Number(gym.id))) || [];
 
   // Total de membresías de todos los meses
   const totalMemberships = memberships.length;
@@ -178,9 +183,9 @@ export default async function GymDashboard() {
           </Card>
           <Card className="md:col-span-3 col-span-4">
             <CardHeader>
-              <CardTitle>Clientes recientes</CardTitle>
+              <CardTitle>Miembros recientes</CardTitle>
               <CardDescription>
-                Se inscribieron {currentMonthClients.length} clientes este mes.
+                Se inscribieron {currentMonthClients.length} miembros este mes.
               </CardDescription>
             </CardHeader>
             <CardContent>

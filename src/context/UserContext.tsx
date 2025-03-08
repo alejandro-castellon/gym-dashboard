@@ -14,65 +14,80 @@ interface UserContextType {
   user: User | null;
   isAdmin: boolean;
   loading: boolean;
+  gymId?: number | null;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
+  const supabase = createClient();
+
   const [state, setState] = useState<UserContextType>({
     user: null,
     isAdmin: false,
     loading: true,
+    gymId: null,
   });
 
   const fetchUser = useCallback(async () => {
-    const supabase = createClient();
-    const controller = new AbortController();
-
     try {
       setState((prev) => ({ ...prev, loading: true }));
 
       const { data: authData } = await supabase.auth.getUser();
-      if (authData?.user) {
-        const { data: userData } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", authData.user.id)
+      if (!authData?.user) {
+        setState({ user: null, isAdmin: false, gymId: null, loading: false });
+        return;
+      }
+
+      // Obtener la información del usuario
+      const { data: userData } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (!userData) {
+        setState({ user: null, isAdmin: false, gymId: null, loading: false });
+        return;
+      }
+
+      let gymId: number | null = null;
+
+      // Si el usuario es admin, buscar el gimnasio donde sea administrador
+      if (userData.admin) {
+        const { data: gymData } = await supabase
+          .from("gyms")
+          .select("id")
+          .contains("admin_ids", [authData.user.id]) // Busca si el id está en admin_ids
           .single();
 
-        if (userData) {
-          setState({
-            user: {
-              id: authData.user.id,
-              email: authData.user.email ?? "",
-              name: userData.name ?? "",
-              ci: userData.ci ?? "",
-              phone: userData.phone ?? "",
-              gender: userData.gender ?? "",
-              fecha_nacimiento: userData.fecha_nacimiento ?? "",
-              created_at: userData.created_at,
-            },
-            isAdmin: userData.admin || false,
-            loading: false,
-          });
-        } else {
-          setState({ user: null, isAdmin: false, loading: false });
-        }
-      } else {
-        setState({ user: null, isAdmin: false, loading: false });
+        gymId = gymData?.id ?? null;
       }
+
+      setState({
+        user: {
+          id: authData.user.id,
+          email: authData.user.email ?? "",
+          name: userData.name ?? "",
+          ci: userData.ci ?? "",
+          phone: userData.phone ?? "",
+          gender: userData.gender ?? "",
+          fecha_nacimiento: userData.fecha_nacimiento ?? "",
+          created_at: userData.created_at,
+        },
+        isAdmin: userData.admin || false,
+        gymId,
+        loading: false,
+      });
     } catch (error) {
       console.error("Error al obtener el usuario:", error);
       setState((prev) => ({ ...prev, loading: false }));
     }
-
-    return () => controller.abort();
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     fetchUser();
 
-    const supabase = createClient();
     const { data: listener } = supabase.auth.onAuthStateChange(() => {
       fetchUser();
     });
@@ -80,7 +95,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return () => {
       listener?.subscription.unsubscribe();
     };
-  }, [fetchUser]);
+  }, [fetchUser, supabase.auth]);
 
   return <UserContext.Provider value={state}>{children}</UserContext.Provider>;
 }

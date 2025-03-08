@@ -1,12 +1,27 @@
+"use client";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import NumericKeypad from "./numeric-keypad";
 import NameSearch from "./name-search";
 import { getActiveGymMemberships } from "@/lib/supabase/data";
 import { Membership } from "@/types";
+import { useUser } from "@/context/UserContext";
+import { useState, useEffect } from "react";
 
-export default async function CheckInInterface() {
-  const memberships: Membership[] = (await getActiveGymMemberships()) ?? [];
+export default function CheckInInterface() {
+  const { gymId } = useUser();
+  const [memberships, setMemberships] = useState<Membership[]>([]);
+
+  useEffect(() => {
+    if (!gymId) return;
+    const fetchData = async () => {
+      const data = await getActiveGymMemberships(gymId);
+      setMemberships(data);
+    };
+    fetchData();
+  }, [gymId]);
+
   return (
     <Card className="overflow-hidden bg-[#102836]">
       <Tabs defaultValue="code" className="w-full">

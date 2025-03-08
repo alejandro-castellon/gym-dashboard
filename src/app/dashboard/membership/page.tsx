@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import MembershipDashboardSkeleton from "@/components/dashboard/clients/skeleton";
-import MembershipInfo from "@/components/dashboard/clients/membership";
+import { MembersDashboardSkeleton } from "@/components/ui/skeletons";
+import MembershipInfo from "@/components/dashboard/members/membership";
 import { getActiveUserMembership } from "@/lib/supabase/data";
 export const metadata: Metadata = {
   title: "Mi membresía",
@@ -12,7 +12,7 @@ export default async function Page() {
   return (
     <main>
       <h1 className="text-2xl font-medium">Mi membresía</h1>
-      <Suspense fallback={<MembershipDashboardSkeleton />}>
+      <Suspense fallback={<MembersDashboardSkeleton />}>
         <MembershipInfo membership={membership} />
       </Suspense>
     </main>

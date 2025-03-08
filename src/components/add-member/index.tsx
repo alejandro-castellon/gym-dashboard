@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Settings from "./form";
+import AddMember from "./add-member-form";
 import { getGymSettings } from "@/lib/supabase/data";
 import { GymSettings } from "@/types";
 import { useUser } from "@/context/UserContext";
-import { SettingsDataSkeleton } from "@/components/ui/skeletons";
+import { AddClientSkeleton } from "@/components/ui/skeletons";
 
-export default function SettingsForm() {
+export default function AddMemberForm() {
   const { gymId } = useUser();
   const [gymSettings, setGymSettings] = useState<GymSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export default function SettingsForm() {
     fetchData();
   }, [gymId]);
 
-  if (loading) return <SettingsDataSkeleton />;
+  if (loading) return <AddClientSkeleton />;
   if (!gymSettings) return <p>No gym settings available</p>;
-  return <Settings data={gymSettings} />;
+  return <AddMember data={gymSettings} />;
 }

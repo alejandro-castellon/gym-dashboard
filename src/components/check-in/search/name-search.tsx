@@ -72,7 +72,7 @@ export default function NameSearch({ memberships }: MembershipHistoryProps) {
     <div className="space-y-4">
       <Command className="rounded-lg border bg-white/20">
         <CommandInput
-          placeholder="Buscar clientes..."
+          placeholder="Buscar miembros..."
           className="text-white placeholder-white/50"
           value={searchTerm}
           onValueChange={setSearchTerm}
