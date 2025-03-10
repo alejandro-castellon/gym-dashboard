@@ -177,7 +177,7 @@ export default async function GymDashboard(props: GymDashboardProps) {
             <CardHeader>
               <CardTitle>Ingresos</CardTitle>
             </CardHeader>
-            <CardContent className="pl-2">
+            <CardContent className="pl-0">
               <Overview data={memberships} />
             </CardContent>
           </Card>

@@ -16,15 +16,20 @@ export const metadata: Metadata = {
 export default async function page(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams;
   return (
-    <Card className="md:w-2/5">
-      <CardHeader>
-        <CardTitle>Agregar miembro</CardTitle>
-        <CardDescription>Introduce la información del miembro.</CardDescription>
-      </CardHeader>
-      <AddMemberForm />
-      <CardFooter>
-        <FormMessage message={searchParams} />
-      </CardFooter>
-    </Card>
+    <main>
+      <h1 className="text-2xl font-medium mb-4">Agregar miembro</h1>
+      <Card className="md:w-2/5">
+        <CardHeader>
+          <CardTitle>Agregar miembro</CardTitle>
+          <CardDescription>
+            Introduce la información del miembro.
+          </CardDescription>
+        </CardHeader>
+        <AddMemberForm />
+        <CardFooter>
+          <FormMessage message={searchParams} />
+        </CardFooter>
+      </Card>
+    </main>
   );
 }

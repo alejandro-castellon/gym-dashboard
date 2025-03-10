@@ -326,7 +326,7 @@ export const createUserInSupabaseAuth = async (email: string) => {
   if (!email) {
     return encodedRedirect(
       "error",
-      "/dashboard/add-client",
+      "/dashboard/add-member",
       "Email es requerido"
     );
   }
@@ -341,7 +341,7 @@ export const createUserInSupabaseAuth = async (email: string) => {
 
   if (error) {
     console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/dashboard/add-client", error.message);
+    return encodedRedirect("error", "/dashboard/add-member", error.message);
   } else if (
     data.user &&
     data.user.identities &&
@@ -349,13 +349,13 @@ export const createUserInSupabaseAuth = async (email: string) => {
   ) {
     return encodedRedirect(
       "error",
-      "/dashboard/add-client",
+      "/dashboard/add-member",
       "Ya existe un usuario con este correo."
     );
   } else {
     return encodedRedirect(
       "success",
-      "/dashboard/add-client",
+      "/dashboard/add-member",
       "Usuario creado correctamente."
     );
   }
@@ -382,7 +382,7 @@ export const createMembership = async (formData: FormData) => {
   ) {
     return encodedRedirect(
       "error",
-      "/dashboard/add-client",
+      "/dashboard/add-member",
       "Todos los campos son obligatorios"
     );
   }
@@ -398,7 +398,7 @@ export const createMembership = async (formData: FormData) => {
     console.error(membershipError.message);
     return encodedRedirect(
       "error",
-      "/dashboard/add-client",
+      "/dashboard/add-member",
       "Error al verificar las membresías existentes"
     );
   }
@@ -407,7 +407,7 @@ export const createMembership = async (formData: FormData) => {
   if (existingMemberships.length) {
     return encodedRedirect(
       "error",
-      "/dashboard/add-client",
+      "/dashboard/add-member",
       "Ya existe una membresía activa en ese rango de fechas para este cliente"
     );
   }
@@ -426,14 +426,14 @@ export const createMembership = async (formData: FormData) => {
     console.error(insertError.message);
     return encodedRedirect(
       "error",
-      "/dashboard/add-client",
+      "/dashboard/add-member",
       "No se pudo crear la membresía"
     );
   }
 
   return encodedRedirect(
     "success",
-    "/dashboard/add-client",
+    "/dashboard/add-member",
     "Membresía creada correctamente"
   );
 };

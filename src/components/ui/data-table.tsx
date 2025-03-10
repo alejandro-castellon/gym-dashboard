@@ -29,7 +29,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,7 +63,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="mt-4">
+    <div>
       <div className="flex items-center py-4">
         <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
           <Input
@@ -94,39 +93,32 @@ export function DataTable<TData, TValue>({
             className="max-w-sm"
           />
         </div>
-        <div className="ml-auto flex flex-col md:flex-row items-center gap-2">
-          <Link href="/dashboard/memberships">
-            <Button variant="outline" className="max-w-sm">
-              Ver todas las membresias
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="ml-auto">
+              Columnas
             </Button>
-          </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columnas
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="rounded-xl border bg-card text-card-foreground shadow">
         <Table>
@@ -178,7 +170,11 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 pt-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          Mostrando {table.getRowModel().rows.length} membresías de{" "}
+          {table.getFilteredRowModel().rows.length}.
+        </div>
         <Button
           variant="outline"
           size="sm"
@@ -186,7 +182,7 @@ export function DataTable<TData, TValue>({
           disabled={!table.getCanPreviousPage()}
           className="shadow"
         >
-          Previo
+          Anterior
         </Button>
         <Button
           variant="outline"

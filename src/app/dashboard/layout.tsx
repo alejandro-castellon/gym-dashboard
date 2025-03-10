@@ -16,7 +16,7 @@ export default async function Layout({
       >
         <SideNav />
         <div className="relative flex-grow p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-y-auto">
-          <div className="absolute md:top-6 md:right-6 top-4 right-4">
+          <div className="absolute md:top-6 md:right-6 top-2 right-2">
             <ModeToggle />
           </div>
           {children}
