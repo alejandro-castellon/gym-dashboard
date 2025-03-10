@@ -17,28 +17,26 @@ const pag3frase3p1 =
 
 export default function About() {
   return (
-    <div>
-      <section className="mt-16">
-        <h2 className="text-4xl font-bold mb-8">{frase2}</h2>
-        <p className="text-lg mt-2">{frase22}</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <h3 className="text-2xl font-bold mb-2">{frase2p1}</h3>
-            <p className="text-lg">{frase2p11}</p>
-          </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <h3 className="text-2xl font-bold mb-2">{frase2p2}</h3>
-            <p className="text-lg">{frase2p22}</p>
-          </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <h3 className="text-2xl font-bold mb-2">{frase2p3}</h3>
-            <p className="text-lg">{frase2p33}</p>
-          </div>
+    <section id="about" className="pt-20 sm:pt-24">
+      <h2 className="text-4xl font-bold mb-8">{frase2}</h2>
+      <p className="text-lg mt-2">{frase22}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="bg-gray-800 p-6 rounded-lg text-center">
+          <h3 className="text-2xl font-bold mb-2">{frase2p1}</h3>
+          <p className="text-lg">{frase2p11}</p>
         </div>
+        <div className="bg-gray-800 p-6 rounded-lg text-center">
+          <h3 className="text-2xl font-bold mb-2">{frase2p2}</h3>
+          <p className="text-lg">{frase2p22}</p>
+        </div>
+        <div className="bg-gray-800 p-6 rounded-lg text-center">
+          <h3 className="text-2xl font-bold mb-2">{frase2p3}</h3>
+          <p className="text-lg">{frase2p33}</p>
+        </div>
+      </div>
 
-        <h3 className="text-3xl font-bold mt-8">{pag3frase3}</h3>
-        <p className="text-lg mt-2">{pag3frase3p1}</p>
-      </section>
-    </div>
+      <h3 className="text-3xl font-bold mt-8">{pag3frase3}</h3>
+      <p className="text-lg mt-2">{pag3frase3p1}</p>
+    </section>
   );
 }

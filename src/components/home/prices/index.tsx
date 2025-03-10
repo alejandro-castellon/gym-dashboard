@@ -22,47 +22,45 @@ const pag4frase5p3 = "Contáctanos.";
 
 export default function Prices() {
   return (
-    <div>
-      <section className="mt-16">
-        <h2 className="text-4xl font-bold mb-8">{pag4frase1}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <h3 className="text-2xl font-bold mb-4">{pag4frase2}</h3>
-            <ul className="text-lg">
-              <li>{pag4frase2p1}</li>
-              <li>{pag4frase2p2}</li>
-              <li>{pag4frase2p3}</li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <h3 className="text-2xl font-bold mb-4">{pag4frase3}</h3>
-            <ul className="text-lg">
-              <li>{pag4frase3p1}</li>
-              <li>{pag4frase3p2}</li>
-              <li>{pag4frase3p3}</li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <h3 className="text-2xl font-bold mb-4">{pag4frase4}</h3>
-            <ul className="text-lg">
-              <li>{pag4frase4p1}</li>
-              <li>{pag4frase4p2}</li>
-              <li>{pag4frase4p3}</li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <h3 className="text-2xl font-bold mb-4">{pag4frase5}</h3>
-            <ul className="text-lg">
-              <li>{pag4frase5p1}</li>
-              <li>{pag4frase5p2}</li>
-              <li>{pag4frase5p3}</li>
-            </ul>
-          </div>
+    <section id="prices" className="pt-20 sm:pt-24">
+      <h2 className="text-4xl font-bold mb-8">{pag4frase1}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="bg-gray-800 p-6 rounded-lg text-center">
+          <h3 className="text-2xl font-bold mb-4">{pag4frase2}</h3>
+          <ul className="text-lg">
+            <li>{pag4frase2p1}</li>
+            <li>{pag4frase2p2}</li>
+            <li>{pag4frase2p3}</li>
+          </ul>
         </div>
-      </section>
-    </div>
+
+        <div className="bg-gray-800 p-6 rounded-lg text-center">
+          <h3 className="text-2xl font-bold mb-4">{pag4frase3}</h3>
+          <ul className="text-lg">
+            <li>{pag4frase3p1}</li>
+            <li>{pag4frase3p2}</li>
+            <li>{pag4frase3p3}</li>
+          </ul>
+        </div>
+
+        <div className="bg-gray-800 p-6 rounded-lg text-center">
+          <h3 className="text-2xl font-bold mb-4">{pag4frase4}</h3>
+          <ul className="text-lg">
+            <li>{pag4frase4p1}</li>
+            <li>{pag4frase4p2}</li>
+            <li>{pag4frase4p3}</li>
+          </ul>
+        </div>
+
+        <div className="bg-gray-800 p-6 rounded-lg text-center">
+          <h3 className="text-2xl font-bold mb-4">{pag4frase5}</h3>
+          <ul className="text-lg">
+            <li>{pag4frase5p1}</li>
+            <li>{pag4frase5p2}</li>
+            <li>{pag4frase5p3}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
   );
 }

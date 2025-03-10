@@ -1,73 +1,113 @@
+"use client";
+
 import Image from "next/image";
-
-{
-  /*pagina inicio */
-}
-
-const inicio =
-  "Gestiona tu gimnasio de manera inteligente desde cualquier lugar de forma fácil y segura con CM";
-
-const inicio1 =
-  "Accede a todas las herramientas que necesitas para administrar tu gimnasio, optimizar el seguimiento de tus clientes y hacer crecer tu negocio.  ";
-
-const frase1 = "Que es clubs manager?";
-const frase1p1 =
-  "Es una plataforma integral diseñada para la gestión eficiente de gimnasios y centros deportivos. Con Clubs Manager, puedes: ";
-const frase1p2 = "Administrar clientes y sus membresías.";
-const frase1p3 = "Controlar ingresos y métricas clave.";
-const frase1p4 = "Registrar check-ins diarios.";
-const frase1p5 = "Personalizar precios, horarios y servicios.";
-
-{
-  /*como funciona */
-}
-
-const pag3frase1 = "¿Como funciona Clubs manager?";
-const pag3frase1p1 =
-  "Regístrate y crea tu gimnasio, Configura el perfil de tu gimnasio con horarios, precios y servicios.";
-const pag3frase2p2 =
-  "Elige el plan ideal para ti, selecciona el plan que mejor se adapte a las necesidades de tu negocio";
-const pag3frase2p3 =
-  "Personaliza y gestiona, añade clientes, registra membresías, realiza check-ins diarios y lleva el control financiero.";
-const pag3frase2p4 =
-  "Analiza y crece, visualiza reportes detallados, sigue el progreso de tus ingresos y optimiza tus estrategias con datos en tiempo real.";
+import { motion } from "framer-motion";
+import { landingContent } from "@/lib/landingContent";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
+  const router = useRouter();
+  const handleRegister = () => {
+    router.push("/sign-up");
+  };
+
   return (
-    <div>
-      <section className="flex justify-between items-center gap-8 mt-24">
-        <h1 className="text-5xl font-bold max-w-lg leading-snug">{inicio}</h1>
-        <Image
-          src="/landing/dashboard.png"
-          alt="Clubs Manager"
-          width={600}
-          height={400}
-          className="rounded-lg"
-        />
-      </section>
+    <section
+      id="hero"
+      className="relative flex flex-col items-center w-full min-h-screen space-y-24 mt-24 sm:mt-0"
+    >
+      {/* Hero Principal - Pantalla Completa */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-8 w-full min-h-screen">
+        <motion.div
+          className="max-w-lg text-center md:text-left"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-4xl md:text-5xl font-bold leading-snug">
+            {landingContent.hero.titulo}
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-4">
+            {landingContent.hero.descripcion}
+          </p>
+          <motion.button
+            className="mt-6 px-6 py-3 bg-primary text-white text-lg font-semibold rounded-lg shadow-md hover:bg-primary/90 transition"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            onClick={handleRegister}
+          >
+            Empezar ahora
+          </motion.button>
+        </motion.div>
 
-      <section className="flex justify-between items-center gap-8 mt-24">
-        <h1 className="text-xl text-gray-600 mt-4 max-w-lg">{inicio1}</h1>
-      </section>
+        {/* Imagen con animación */}
+        <motion.div
+          className="flex justify-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          <Image
+            src="/landing/dashboard.png"
+            alt="Clubs Manager"
+            width={800}
+            height={400}
+            className="rounded-lg shadow-lg"
+          />
+        </motion.div>
+      </div>
 
-      <section className="mt-16">
-        <h2 className="text-4xl font-bold mb-4">{frase1}</h2>
-        <p className="text-xl max-w-2x1 leading-relaxed">{frase1p1}</p>
-        <p className="text-xl max-w-2x1 leading-relaxed">{frase1p2}</p>
-        <p className="text-xl max-w-2x1 leading-relaxed">{frase1p3}</p>
-        <p className="text-xl max-w-2x1 leading-relaxed">{frase1p4}</p>
-        <p className="text-xl max-w-2x1 leading-relaxed">{frase1p5}</p>
-      </section>
-
-      <section className="mt-16">
-        <h2 className="text-4xl font-bold mb-8">{pag3frase1}</h2>
-        <ul className="text-xl space-y-4">
-          <li>{pag3frase1p1}</li>
-          <li>{pag3frase2p2}</li>
-          <li>{pag3frase2p3}</li>
-          <li>{pag3frase2p4}</li>
+      {/* Sección: ¿Qué es Clubs Manager? - Aparece al hacer scroll */}
+      <motion.div
+        className="max-w-2xl text-center py-20"
+        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 50 }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="text-4xl font-bold mb-4">
+          {landingContent.queEsCM.titulo}
+        </h2>
+        <p className="text-xl text-gray-600">
+          {landingContent.queEsCM.descripcion}
+        </p>
+        <ul className="text-lg text-gray-800 mt-4 space-y-2">
+          {landingContent.queEsCM.beneficios.map((item, index) => (
+            <motion.li
+              key={index}
+              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              transition={{ delay: index * 0.2, duration: 0.5 }}
+            >
+              ✅ {item}
+            </motion.li>
+          ))}
         </ul>
-      </section>
-    </div>
+      </motion.div>
+
+      {/* Sección: ¿Cómo funciona Clubs Manager? */}
+      <motion.div
+        className="max-w-2xl text-center py-20"
+        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 50 }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="text-4xl font-bold mb-8">
+          {landingContent.comoFunciona.titulo}
+        </h2>
+        <ul className="text-lg text-gray-800 space-y-4">
+          {landingContent.comoFunciona.pasos.map((item, index) => (
+            <motion.li
+              key={index}
+              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              transition={{ delay: index * 0.2, duration: 0.5 }}
+            >
+              🔹 {item}
+            </motion.li>
+          ))}
+        </ul>
+      </motion.div>
+    </section>
   );
 }

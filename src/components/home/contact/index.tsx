@@ -8,17 +8,15 @@ const pag5frase5 = "email - 8wYvD@example.com";
 
 export default function Contact() {
   return (
-    <div>
-      <section className="mt-16">
-        <h2 className="text-4xl font-bold mb-8">{pag5frase1}</h2>
-        <p className="text-xl mb-4">{pag5frase2}</p>
-        <p className="text-lg mb-8">{pag5frase3}</p>
+    <section id="contact" className="pt-20 sm:pt-24">
+      <h2 className="text-4xl font-bold mb-8">{pag5frase1}</h2>
+      <p className="text-xl mb-4">{pag5frase2}</p>
+      <p className="text-lg mb-8">{pag5frase3}</p>
 
-        <div className="flex flex-col space-y-4">
-          <p>{pag5frase4}</p>
-          <p>{pag5frase5}</p>
-        </div>
-      </section>
-    </div>
+      <div className="flex flex-col space-y-4">
+        <p>{pag5frase4}</p>
+        <p>{pag5frase5}</p>
+      </div>
+    </section>
   );
 }

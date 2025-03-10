@@ -5,10 +5,11 @@ import Services from "@/components/home/services";
 import Prices from "@/components/home/prices";
 import About from "@/components/home/about";
 import Contact from "@/components/home/contact";
+import Footer from "@/components/home/footer";
 
 export default function Home() {
   return (
-    <div className="bg-black text-white min-h-screen p-8">
+    <div className="px-8">
       <Header />
       <Hero />
       <Features />
@@ -16,6 +17,7 @@ export default function Home() {
       <Prices />
       <About />
       <Contact />
+      <Footer />
     </div>
   );
 }
