@@ -87,7 +87,7 @@ export default function Footer() {
 
         {/* COLUMN-5 Contacto */}
         <div className="sm:col-span-6 lg:col-span-4">
-          <p className="text-black text-xl font-semibold mb-9">Contacto</p>
+          <p className="text-xl font-semibold mb-9">Contacto</p>
           <ul>
             <li className="mb-5 flex items-center">
               <PhoneIcon className="h-5 w-5 mr-2 text-primary" />

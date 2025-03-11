@@ -54,7 +54,6 @@ export default function Header() {
           {[
             { label: "Inicio", href: "#hero" },
             { label: "Funciones", href: "#features" },
-            { label: "Servicios", href: "#services" },
             { label: "Precios", href: "#prices" },
             { label: "Nosotros", href: "#about" },
             { label: "Contacto", href: "#contact" },
@@ -62,7 +61,7 @@ export default function Header() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="hover:text-gray-400 transition-colors"
+                className="hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
                 onClick={(e) => {
                   smoothScroll(e); // Llamar a la función para hacer el desplazamiento suave
                 }}
@@ -110,7 +109,6 @@ export default function Header() {
             {[
               { label: "Inicio", href: "#hero" },
               { label: "Funciones", href: "#features" },
-              { label: "Servicios", href: "#services" },
               { label: "Precios", href: "#prices" },
               { label: "Nosotros", href: "#about" },
               { label: "Contacto", href: "#contact" },
