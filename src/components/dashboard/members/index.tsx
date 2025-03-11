@@ -24,6 +24,7 @@ export default async function MemberDashboard(props: MembershipDashboardProps) {
   );
 
   const isActive = () => {
+    if (memberships.length === 0) return false;
     const currentDate = new Date();
     const endDate = new Date(memberships[0].end_date);
     // Convert dates to YYYY-MM-DD format

@@ -42,7 +42,7 @@ export default function ClientInfo({ client, isActive }: ClientInfoProps) {
         <div className="space-y-1 text-center md:text-left">
           <h2 className="text-2xl font-bold">{client.name}</h2>
           <Badge variant={isActive ? "default" : "destructive"}>
-            {isActive ? "Membresía Activa" : "Sin Membresía Activa"}
+            {isActive ? "Membresía Activa" : "No tiene Membresía Activa"}
           </Badge>
         </div>
       </div>

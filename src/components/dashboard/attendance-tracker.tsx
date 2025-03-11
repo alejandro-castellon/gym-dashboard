@@ -43,18 +43,18 @@ export default function AttendanceTracker({
   const year = currentMonth.getFullYear();
 
   // Formatear hora en formato 12 horas AM/PM
-  const formatTime = (dateString: string, timeString: string) => {
-    if (!dateString || !timeString) return "Fecha no disponible";
-    const cleanTime = timeString.split(".")[0]; // "00:36:15"
-
-    // Unimos la fecha y la hora en formato ISO
-    const date = new Date(`${dateString}T${cleanTime}`);
-    return date.toLocaleTimeString("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    });
+  const formatTime = (timeString: string) => {
+    if (!timeString) return "Fecha no disponible";
+    const cleanTime = timeString.split(".")[0]; // "12:23:14"
+    const [hours, minutes, seconds] = cleanTime.split(":").map(Number);
+    // Determinar AM o PM
+    const period = hours >= 12 ? "p. m." : "a. m.";
+    // Convertir a formato de 12 horas
+    const formattedHours = hours % 12 || 12; // 0 se convierte en 12
+    // Formatear salida
+    return `${formattedHours}:${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")} ${period}`;
   };
   // Crear array de días en el mes
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -141,7 +141,7 @@ export default function AttendanceTracker({
                 title={
                   attended
                     ? `Asistió: ${attendanceDetails
-                        .map((a) => formatTime(a.date, a.check_in))
+                        .map((a) => formatTime(a.check_in))
                         .join(", ")}`
                     : "No asistió"
                 }

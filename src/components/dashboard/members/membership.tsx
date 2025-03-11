@@ -1,6 +1,7 @@
 import { Membership } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { getActiveUserMembership } from "@/lib/supabase/data";
 
 const weekdayTranslations: Record<string, string> = {
   monday: "Lunes",
@@ -22,14 +23,9 @@ const weekdayOrder: Record<string, number> = {
   saturday: 6,
   sunday: 7,
 };
-interface MembershipDashboardProps {
-  membership: Membership;
-}
 
-export default async function MembershipInfo(
-  MembershipDashboardProps: MembershipDashboardProps
-) {
-  const membership: Membership = MembershipDashboardProps.membership;
+export default async function MembershipInfo() {
+  const membership: Membership = await getActiveUserMembership();
   const checkMembershipStatus = () => {
     const currentDate = new Date();
     const sevenDaysFromNow = new Date(currentDate);
@@ -45,7 +41,7 @@ export default async function MembershipInfo(
     }
   };
 
-  if (membership) {
+  if (membership.id) {
     return (
       <div className="max-w-3xl mx-auto p-4 space-y-6 mt-4">
         {/* Información de la membresía */}
@@ -115,5 +111,7 @@ export default async function MembershipInfo(
     );
   }
 
-  return <div>No tienes una membresía activa</div>;
+  return (
+    <div className="text-center mt-12">No tienes una membresía activa</div>
+  );
 }
