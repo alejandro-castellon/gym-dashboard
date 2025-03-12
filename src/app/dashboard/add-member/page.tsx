@@ -17,7 +17,7 @@ export default async function page(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams;
   return (
     <main>
-      <h1 className="text-2xl font-medium mb-4">Agregar miembro</h1>
+      <h1 className="text-2xl font-medium mb-4">Crear membresía</h1>
       <Card className="md:w-2/5">
         <CardHeader>
           <CardTitle>Agregar miembro</CardTitle>

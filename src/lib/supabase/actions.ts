@@ -319,8 +319,6 @@ export const updateGymData = async (formData: FormData) => {
 };
 
 export const createUserInSupabaseAuth = async (email: string) => {
-  const supabase = await createClient();
-  const password = "12345678";
   const origin = (await headers()).get("origin");
 
   if (!email) {
@@ -330,35 +328,26 @@ export const createUserInSupabaseAuth = async (email: string) => {
       "Email es requerido"
     );
   }
+  // Extraer la parte del nombre antes del @ para usar como contraseña
+  const password = email.split("@")[0];
 
-  const { error, data } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/api/auth/callback`,
-    },
+  const response = await fetch(`${origin}/api/createUser`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
   });
 
-  if (error) {
-    console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/dashboard/add-member", error.message);
-  } else if (
-    data.user &&
-    data.user.identities &&
-    data.user.identities.length == 0
-  ) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/add-member",
-      "Ya existe un usuario con este correo."
-    );
-  } else {
-    return encodedRedirect(
-      "success",
-      "/dashboard/add-member",
-      "Usuario creado correctamente."
-    );
+  const result = await response.json();
+
+  if (!response.ok) {
+    return encodedRedirect("error", "/dashboard/add-member", result.error);
   }
+
+  return encodedRedirect(
+    "success",
+    "/dashboard/add-member",
+    "Usuario creado correctamente - Contraseña: " + password
+  );
 };
 
 export const createMembership = async (formData: FormData) => {

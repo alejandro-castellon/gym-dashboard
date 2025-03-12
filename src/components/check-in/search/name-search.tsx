@@ -65,7 +65,7 @@ export default function NameSearch({ memberships }: MembershipHistoryProps) {
   };
 
   const filteredMemberships = memberships.filter((member) =>
-    member.users?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    member.users?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
