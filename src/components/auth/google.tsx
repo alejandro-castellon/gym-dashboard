@@ -24,7 +24,9 @@ export default function Google() {
       onClick={() => signInGoogle()}
       type="button"
     >
-      Google
+      <img src="google-logo.svg" alt="Google Logo" className="w-5 h-5" />
+      <span>Iniciar sesión con Google</span>
+
       <BottomGradient />
     </Button>
   );
