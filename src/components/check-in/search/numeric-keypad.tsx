@@ -78,7 +78,14 @@ export default function NumericKeypad({ memberships }: MembershipHistoryProps) {
       }
 
       // Llamada a la función para registrar la asistencia
-      await registerAttendance(selectedMembership.id.toString());
+      if (selectedMembership.days_left !== undefined) {
+        await registerAttendance(
+          selectedMembership.id.toString(),
+          selectedMembership.days_left
+        );
+      } else {
+        setMessage("❌ Error: días restantes no definidos.");
+      }
       setMessage("✅ Check-in realizado correctamente");
       setSelectedMembership(null);
     } catch (error) {

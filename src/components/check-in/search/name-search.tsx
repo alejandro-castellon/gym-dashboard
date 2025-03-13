@@ -35,6 +35,9 @@ export default function NameSearch({ memberships }: MembershipHistoryProps) {
   const [selectedMembership, setSelectedMembership] = useState<number | null>(
     null
   );
+  const [selectedMembershipDays, setSelectedMembershipDays] = useState<
+    number | null
+  >(null);
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
 
@@ -51,7 +54,16 @@ export default function NameSearch({ memberships }: MembershipHistoryProps) {
         return;
       }
 
-      await registerAttendance(selectedMembership.toString());
+      if (selectedMembershipDays !== null) {
+        await registerAttendance(
+          selectedMembership.toString(),
+          selectedMembershipDays
+        );
+      } else {
+        setMessage(
+          "❌ Error: No se pudo obtener los días restantes del miembro."
+        );
+      }
       setMessage("✅ Check-in realizado correctamente");
       setSearchTerm("");
     } catch (error) {
@@ -89,7 +101,12 @@ export default function NameSearch({ memberships }: MembershipHistoryProps) {
                     <AlertDialogTrigger asChild>
                       <button
                         className="text-left w-full"
-                        onClick={() => setSelectedMembership(member.id)}
+                        onClick={() => {
+                          setSelectedMembership(member.id);
+                          if (member.days_left !== undefined) {
+                            setSelectedMembershipDays(member.days_left);
+                          }
+                        }}
                       >
                         <CommandItem className="flex items-center gap-2 text-white hover:bg-white/20 hover:cursor-pointer">
                           <Avatar className="h-8 w-8">

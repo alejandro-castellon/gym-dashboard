@@ -15,8 +15,11 @@ export default async function Page({
   const { id } = await params;
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <MemberDashboard id={id} />
-    </Suspense>
+    <>
+      <h1 className="text-2xl font-medium mb-4">Miembro</h1>
+      <Suspense fallback={<LoadingSpinner />}>
+        <MemberDashboard id={id} />
+      </Suspense>
+    </>
   );
 }

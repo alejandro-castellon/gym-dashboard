@@ -43,7 +43,12 @@ const membershipTypes: Record<number, string> = {
 };
 
 export default function AddMember({ data }: SettingsFormProps) {
-  const getTodayDate = () => new Date().toISOString().split("T")[0];
+  const getTodayDate = () => {
+    const today = new Date();
+    return new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split("T")[0];
+  };
 
   const getEndDateByMembership = (
     startDate: string,

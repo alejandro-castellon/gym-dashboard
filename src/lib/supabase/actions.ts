@@ -427,12 +427,34 @@ export const createMembership = async (formData: FormData) => {
   );
 };
 
-export const registerAttendance = async (membership_id: string) => {
+export const registerAttendance = async (
+  membership_id: string,
+  days_left: number
+) => {
   const supabase = await createClient();
   // Insertar la membresía
   await supabase.from("attendances").insert({
     membership_id,
   });
+
+  if (days_left === 1) {
+    const today = new Date();
+    const localDate = new Date(
+      today.getTime() - today.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+
+    const { error } = await supabase
+      .from("memberships")
+      .update({
+        end_date: localDate,
+      })
+      .eq("id", membership_id);
+    if (error) {
+      console.error(error.message);
+    }
+  }
 };
 
 export const openGym = async (formData: FormData) => {

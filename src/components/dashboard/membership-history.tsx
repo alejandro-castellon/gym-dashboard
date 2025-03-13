@@ -33,15 +33,23 @@ export default function MembershipHistory({
       month < 10 ? `0${month}` : month
     }/${year}`;
   };
-  const isActive = (date: Date): boolean => {
+  const isActive = (start_date: Date, end_date: Date): string => {
     const currentDate = new Date();
-    const endDate = new Date(date);
+
+    const startDate = new Date(start_date);
+    const endDate = new Date(end_date);
 
     // Convert dates to YYYY-MM-DD format
-    const today = currentDate.toISOString().split("T")[0];
+    const today = new Date(
+      currentDate.getTime() - currentDate.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    const startDateString = startDate.toISOString().split("T")[0];
     const endDateString = endDate.toISOString().split("T")[0];
-
-    return endDateString >= today;
+    if (startDateString > today) return "Por iniciar";
+    if (endDateString < today) return "Expirada";
+    return "Activa";
   };
 
   return (
@@ -57,6 +65,10 @@ export default function MembershipHistory({
             <div className="h-3 w-3 rounded-full bg-gray-300"></div>
             <span className="text-xs">Expirada</span>
           </div>
+          <div className="flex items-center gap-1">
+            <div className="h-3 w-3 rounded-full bg-yellow-100"></div>
+            <span className="text-xs">Por iniciar</span>
+          </div>
         </div>
       </div>
 
@@ -71,8 +83,12 @@ export default function MembershipHistory({
               key={membership.id}
               className={cn(
                 "rounded-lg border p-4 transition-all",
-                isActive(membership.end_date)
+                isActive(membership.start_date, membership.end_date) ===
+                  "Activa"
                   ? "border-green-200 bg-green-100 dark:bg-green-900"
+                  : isActive(membership.start_date, membership.end_date) ===
+                    "Por iniciar"
+                  ? "border-yellow-200 bg-yellow-100 dark:bg-yellow-900"
                   : "border-gray-200"
               )}
             >
@@ -84,13 +100,19 @@ export default function MembershipHistory({
                         membership.membership_type_id as number
                       ] || "Desconocido"}
                     </h4>
-                    {isActive(membership.end_date) ? (
+                    {isActive(membership.start_date, membership.end_date) ===
+                    "Activa" ? (
                       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                         Activa
                       </span>
-                    ) : (
+                    ) : isActive(membership.start_date, membership.end_date) ===
+                      "Expirada" ? (
                       <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
                         Expirada
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                        Por iniciar
                       </span>
                     )}
                   </div>

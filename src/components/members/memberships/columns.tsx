@@ -26,7 +26,11 @@ const getMembershipStatus = (endDate: Date, startDate: Date): string => {
   const sevenDaysFromNow = new Date(currentDate);
   sevenDaysFromNow.setDate(currentDate.getDate() + 7);
 
-  const today = currentDate.toISOString().split("T")[0];
+  const today = new Date(
+    currentDate.getTime() - currentDate.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .split("T")[0];
   const endDateString = endDate.toISOString().split("T")[0];
   const startDateString = startDate.toISOString().split("T")[0];
   const sevenDays = sevenDaysFromNow.toISOString().split("T")[0];

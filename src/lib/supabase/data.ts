@@ -166,13 +166,19 @@ export const checkIfAlreadyCheckedIn = async (
   membershipId: number
 ): Promise<boolean> => {
   const supabase = await createClient();
+  const today = new Date();
+  const localDate = new Date(
+    today.getTime() - today.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .split("T")[0];
 
   // Buscar registros de asistencia de hoy
   const { data, error } = await supabase
     .from("attendances")
     .select("id, date")
     .eq("membership_id", membershipId)
-    .gte("date", new Date().toISOString().split("T")[0]);
+    .gte("date", localDate);
 
   if (error) {
     console.error("Error al verificar asistencia:", error);

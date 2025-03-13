@@ -1,6 +1,9 @@
 import { Gym, Membership } from "@/types";
 import { getUserGyms } from "@/lib/supabase/data";
-import { getAllGymMemberships } from "@/lib/supabase/data";
+import {
+  getAllGymMemberships,
+  getActiveGymMemberships,
+} from "@/lib/supabase/data";
 import {
   Card,
   CardDescription,
@@ -21,6 +24,9 @@ export default async function GymDashboard(props: GymDashboardProps) {
   const gym: Gym = await getUserGyms(props.id);
   const memberships: Membership[] =
     (await getAllGymMemberships(Number(gym.id))) || [];
+  const activeMemberships: Membership[] = await getActiveGymMemberships(
+    Number(gym.id)
+  );
 
   // Total de membresías de todos los meses
   const totalMemberships = memberships.length;
@@ -32,29 +38,10 @@ export default async function GymDashboard(props: GymDashboardProps) {
   };
 
   const currentDate = new Date();
-  const currentDateString = currentDate.toISOString().split("T")[0]; // Obtener solo la fecha sin la hora
-
-  const activeMemberships = memberships.filter((membership) => {
-    const endDate = new Date(membership.end_date);
-    const endDateString = endDate.toISOString().split("T")[0]; // Obtener solo la fecha sin la hora
-
-    // Comparar las fechas sin tener en cuenta la hora
-    return endDateString >= currentDateString;
-  });
 
   // Membresías que están activas y a menos de una semana de expirar
   const fewDaysMemberships = activeMemberships.filter((membership) => {
-    const endDate = new Date(membership.end_date);
-    const endDateString = endDate.toISOString().split("T")[0]; // Obtener solo la fecha sin la hora
-
-    // Calcular la diferencia de días
-    const timeDiffInMs = endDate.getTime() - currentDate.getTime();
-    const diffInDays = timeDiffInMs / (1000 * 60 * 60 * 24);
-
-    return (
-      endDateString >= currentDateString && // Aún no ha expirado
-      diffInDays <= 7 // Menos de 7 días
-    );
+    return membership?.days_left !== undefined && membership.days_left <= 7;
   });
 
   // Calcular el porcentaje de aumento de membresías activas en este mes con respecto al total de membresías

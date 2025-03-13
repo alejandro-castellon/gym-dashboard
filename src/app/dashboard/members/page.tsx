@@ -46,7 +46,7 @@ export default async function Page({
             >
               <Button>
                 Ver{" "}
-                {showMembers ? "Todas las membresías" : "Membresías activas"}
+                {showMembers ? "Todas las Membresías" : "Membresías Activas"}
               </Button>
             </Link>
             <Link href="/dashboard/add-member" passHref>
