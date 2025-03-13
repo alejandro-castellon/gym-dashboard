@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function Google() {
   const signInGoogle = async () => {
@@ -24,7 +25,8 @@ export default function Google() {
       onClick={() => signInGoogle()}
       type="button"
     >
-      Google
+      <Image src="/google-logo.svg" alt="Google Logo" width={25} height={25} />
+      <span>Iniciar sesión con Google</span>
       <BottomGradient />
     </Button>
   );

@@ -10,34 +10,45 @@ import Google from "@/components/auth/google";
 export default async function Login(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams;
   return (
-    <div className="max-w-md w-full mx-auto rounded-none rounded-3xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-      <h1 className="text-2xl font-medium">Sign in</h1>
-      <p className="text-sm text-foreground">
-        No tienes una cuenta?{" "}
-        <Link className="text-primary font-medium underline" href="/sign-up">
-          Sign up
-        </Link>
-      </p>
+    <div className="max-w-md w-full mx-auto rounded-3xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+      <h1 className="text-2xl font-medium mb-3">Iniciar sesión</h1>
 
-      <form className="my-8">
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
+      {/* Botón de Google */}
+      <div className="flex justify-center my-8">
+        <Google />
+      </div>
+
+      <div className="flex items-center justify-center my-4">
+        <div className="w-full h-px bg-neutral-300 dark:bg-neutral-700" />
+        <span className="mx-4 text-sm text-neutral-500 dark:text-neutral-400">
+          o
+        </span>
+        <div className="w-full h-px bg-neutral-300 dark:bg-neutral-700" />
+      </div>
+
+      {/* Formulario de inicio de sesión */}
+      <form className="space-y-6">
+        <LabelInputContainer>
+          <Label htmlFor="email">Correo electrónico</Label>
           <Input
             id="email"
             name="email"
-            placeholder="gimnasio@fc.com"
+            placeholder="clubsmanager@ejemplo.com"
             type="email"
             required
           />
         </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password</Label>
-          <Link
-            className="text-xs text-foreground underline"
-            href="/forgot-password"
-          >
-            Forgot Password?
-          </Link>
+
+        <LabelInputContainer>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="password">Contraseña</Label>
+            <Link
+              className="text-xs text-foreground underline"
+              href="/forgot-password"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
           <Input
             id="password"
             name="password"
@@ -46,32 +57,26 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
             required
           />
         </LabelInputContainer>
-        <div className="flex flex-col space-y-4">
-          <SubmitButton
-            className="relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-            pendingText="Signing In..."
-            formAction={signInAction}
-          >
-            Iniciar sesión
-            <BottomGradient />
-          </SubmitButton>
-          <Google />
-        </div>
-        <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
-        <FormMessage message={searchParams} />
+
+        <SubmitButton
+          className="text-white rounded-md h-10 w-full font-medium"
+          pendingText="Ingresando..."
+          formAction={signInAction}
+        >
+          Iniciar sesión
+        </SubmitButton>
       </form>
+      <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-4 h-[1px] w-full" />
+      <FormMessage message={searchParams} />
+      <p className="text-sm text-foreground text-center mt-4">
+        ¿No tienes una cuenta?{" "}
+        <Link className="text-primary font-medium underline" href="/sign-up">
+          Regístrate aquí
+        </Link>
+      </p>
     </div>
   );
 }
-
-const BottomGradient = () => {
-  return (
-    <>
-      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-green-500 to-transparent" />
-      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-    </>
-  );
-};
 
 const LabelInputContainer = ({
   children,

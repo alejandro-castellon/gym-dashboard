@@ -15,7 +15,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "Email and password are required"
+      "Email and contraseña son requeridos"
     );
   }
 
@@ -38,13 +38,13 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "There is already an account associated with this email address."
+      "Ya existe un usuario asociado con este correo electrónico ."
     );
   } else {
     return encodedRedirect(
       "success",
       "/sign-up",
-      "Thanks for signing up! Please check your email for a verification link."
+      "Gracias por registrarte! Por favor revisa tu correo electrónico para verificar su cuenta."
     );
   }
 };
