@@ -26,6 +26,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
+    // Enviar correo con las credenciales usando OTP
+    const { error: emailError } = await supabaseAdmin.auth.signInWithOtp({
+      email,
+      options: {
+        data: {
+          password: password,
+          type: "signup",
+        },
+      },
+    });
+
+    if (emailError) {
+      console.error("Error al enviar el correo:", emailError);
+      // No retornamos error ya que el usuario fue creado exitosamente
+    }
+
     return NextResponse.json({
       success: "Usuario creado correctamente",
       user: data,

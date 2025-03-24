@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,13 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
   createUserInSupabaseAuth,
   createMembership,
 } from "@/lib/supabase/actions";
@@ -31,7 +38,8 @@ import { GymSettings, GymPrices } from "@/types";
 import { addMonths, subDays, lastDayOfMonth } from "date-fns";
 
 interface SettingsFormProps {
-  data: GymSettings;
+  gymSettings: GymSettings;
+  members: string[];
 }
 
 const membershipTypes: Record<number, string> = {
@@ -42,7 +50,7 @@ const membershipTypes: Record<number, string> = {
   5: "Día por medio mensual",
 };
 
-export default function AddMember({ data }: SettingsFormProps) {
+export default function AddMember({ gymSettings, members }: SettingsFormProps) {
   const getTodayDate = () => {
     const today = new Date();
     return new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -100,10 +108,12 @@ export default function AddMember({ data }: SettingsFormProps) {
   const [isChanged, setIsChanged] = useState(false);
   const [selectedMembership, setSelectedMembership] =
     useState<GymPrices | null>(null);
-  const [loading, setLoading] = useState(false); // Estado de carga
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [open, setOpen] = useState(false);
 
   const handleSelectChange = (value: string) => {
-    const membership = data.gymPrices.find(
+    const membership = gymSettings.gymPrices.find(
       (price) => price.membership_type_id.toString() === value
     );
     if (!membership) return;
@@ -152,7 +162,7 @@ export default function AddMember({ data }: SettingsFormProps) {
     formDataToSubmit.append("start_date", formData.start_date);
     formDataToSubmit.append("end_date", formData.end_date);
     formDataToSubmit.append("price", formData.price);
-    formDataToSubmit.append("gym_id", data.id);
+    formDataToSubmit.append("gym_id", gymSettings.id);
     formDataToSubmit.append(
       "membership_type_id",
       selectedMembership.membership_type_id.toString()
@@ -174,6 +184,14 @@ export default function AddMember({ data }: SettingsFormProps) {
       }
     }
   };
+
+  const filteredMembers = useMemo(
+    () =>
+      members.filter((member) => {
+        return member.toLowerCase().includes(searchTerm.toLowerCase());
+      }),
+    [members, searchTerm]
+  );
 
   return (
     <div>
@@ -203,7 +221,7 @@ export default function AddMember({ data }: SettingsFormProps) {
                           <span className="font-semibold">2. </span>Presiona el
                           botón{" "}
                           <span className="underline text-primary">
-                            Crear usuario
+                            Crear cuenta
                           </span>
                         </p>
                         <p className="flex items-center gap-2">
@@ -230,18 +248,57 @@ export default function AddMember({ data }: SettingsFormProps) {
                   </DialogContent>
                 </Dialog>
               </div>
-              <Input
-                id="email"
-                placeholder="Introduce el correo electrónico"
-                onChange={handleChange}
-                value={formData.email}
-                type="email"
-                required
-              />
+              <Command
+                className="rounded-lg border shadow-md"
+                shouldFilter={false}
+              >
+                <CommandInput
+                  placeholder="Introduce el correo electrónico"
+                  value={searchTerm}
+                  onValueChange={(value) => {
+                    setSearchTerm(value);
+                    setOpen(!!value);
+                    setFormData((prev) => ({ ...prev, email: value })); // Para mantener formData sincronizado
+                  }}
+                  typeof="email"
+                />
+                {open && (
+                  <CommandList>
+                    {filteredMembers.length > 0 && (
+                      <CommandGroup>
+                        {filteredMembers.map((member) => (
+                          <CommandItem
+                            key={member}
+                            className="flex items-center gap-2 hover:bg-white/20 hover:cursor-pointer"
+                            onSelect={() => {
+                              setSearchTerm(member);
+                              handleChange({
+                                target: {
+                                  id: "email",
+                                  value: member,
+                                },
+                              } as React.ChangeEvent<HTMLInputElement>);
+                              setOpen(false); // Cierra el dropdown
+                            }}
+                          >
+                            <p>{member}</p>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
+                )}
+              </Command>
               <Button
                 type="button"
                 onClick={handleCreateUser}
-                disabled={!formData.email}
+                disabled={
+                  !formData.email ||
+                  members.some(
+                    (member) =>
+                      member.toLowerCase() === formData.email.toLowerCase()
+                  )
+                }
                 size="sm"
                 className="ml-auto"
               >
@@ -250,7 +307,7 @@ export default function AddMember({ data }: SettingsFormProps) {
                 ) : (
                   <>
                     <UserPlus />
-                    Crear usuario
+                    Crear cuenta
                   </>
                 )}
               </Button>
@@ -267,7 +324,7 @@ export default function AddMember({ data }: SettingsFormProps) {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Membresía</SelectLabel>
-                    {data.gymPrices
+                    {gymSettings.gymPrices
                       .filter((price) => !isNaN(price.price)) // Filtra los precios nulos
                       .map(({ membership_type_id }) => (
                         <SelectItem

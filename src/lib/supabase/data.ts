@@ -134,6 +134,24 @@ export const getAllGymMemberships = async (
   return data;
 };
 
+export const getAllGymMember = async (gymId: number): Promise<string[]> => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("user_email")
+    .eq("gym_id", gymId);
+
+  if (error || !data) {
+    return [];
+  }
+
+  // Filtrar valores únicos
+  const uniqueEmails = [...new Set(data.map((member) => member.user_email))];
+
+  return uniqueEmails;
+};
+
 export const getRecentGymCheckins = async (): Promise<Attendance[]> => {
   const supabase = await createClient();
 
