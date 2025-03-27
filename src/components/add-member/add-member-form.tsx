@@ -42,6 +42,14 @@ interface SettingsFormProps {
   members: string[];
 }
 
+interface ClientInfo {
+  name: string;
+  ci: string;
+  phone: string;
+  gender: string;
+  birthDate: string;
+}
+
 const membershipTypes: Record<number, string> = {
   1: "Mensual",
   2: "Trimestral",
@@ -111,6 +119,14 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [clientInfo, setClientInfo] = useState<ClientInfo>({
+    name: "",
+    ci: "",
+    phone: "",
+    gender: "",
+    birthDate: "",
+  });
 
   const handleSelectChange = (value: string) => {
     const membership = gymSettings.gymPrices.find(
@@ -174,14 +190,37 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
   };
 
   const handleCreateUser = async () => {
-    if (formData.email) {
-      setLoading(true); // Iniciar el loading
-      try {
-        // Asegúrate de que `createUserInSupabaseAuth` devuelva una promesa.
-        await createUserInSupabaseAuth(formData.email);
-      } finally {
-        setLoading(false); // Terminar el loading, independientemente del resultado
-      }
+    if (
+      !clientInfo.name ||
+      !clientInfo.ci ||
+      !clientInfo.phone ||
+      !clientInfo.gender ||
+      !clientInfo.birthDate
+    ) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("email", formData.email);
+      formDataToSubmit.append("name", clientInfo.name);
+      formDataToSubmit.append("ci", clientInfo.ci);
+      formDataToSubmit.append("phone", clientInfo.phone);
+      formDataToSubmit.append("gender", clientInfo.gender);
+      formDataToSubmit.append("fecha_nacimiento", clientInfo.birthDate);
+
+      await createUserInSupabaseAuth(formDataToSubmit);
+    } finally {
+      setClientInfo({
+        name: "",
+        ci: "",
+        phone: "",
+        gender: "",
+        birthDate: "",
+      });
+      setLoading(false);
+      setDialogOpen(false);
     }
   };
 
@@ -199,11 +238,11 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center">
                 <Label htmlFor="email">Email</Label>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <p className="text-xs text-muted-foreground underline cursor-pointer hover:text-primary transition">
+                    <p className="text-xs text-muted-foreground underline cursor-pointer hover:text-primary transition ml-auto">
                       El usuario no tiene cuenta?
                     </p>
                   </DialogTrigger>
@@ -244,6 +283,142 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                           Cerrar
                         </button>
                       </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="ml-2"
+                      onClick={() => {
+                        setSearchTerm("");
+                      }}
+                    >
+                      {loading ? (
+                        "Creando cuenta..."
+                      ) : (
+                        <>
+                          <UserPlus />
+                          Crear cuenta
+                        </>
+                      )}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent
+                    className="sm:max-w-[450px] rounded-2xl shadow-xl p-6"
+                    onPointerDownOutside={(e) => e.preventDefault()}
+                  >
+                    <DialogTitle className="text-2xl font-semibold">
+                      Crear nueva cuenta
+                    </DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                      Por favor, complete todos los campos para crear la cuenta
+                      del cliente.
+                    </DialogDescription>
+                    <div className="grid gap-5">
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          value={formData.email}
+                          onChange={(e) => {
+                            setFormData({ ...formData, email: e.target.value });
+                            setSearchTerm(e.target.value);
+                          }}
+                          placeholder="ejemplo@correo.com"
+                          className="rounded-xl shadow-sm"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="name">Nombre completo</Label>
+                        <Input
+                          id="name"
+                          value={clientInfo.name}
+                          onChange={(e) =>
+                            setClientInfo({
+                              ...clientInfo,
+                              name: e.target.value,
+                            })
+                          }
+                          placeholder="Ejemplo: Juan Pérez"
+                          className="rounded-xl shadow-sm"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="ci">Número de CI</Label>
+                        <Input
+                          id="ci"
+                          value={clientInfo.ci}
+                          onChange={(e) =>
+                            setClientInfo({ ...clientInfo, ci: e.target.value })
+                          }
+                          placeholder="Ingrese su cédula de identidad"
+                          className="rounded-xl shadow-sm"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="phone">Teléfono</Label>
+                        <Input
+                          id="phone"
+                          value={clientInfo.phone}
+                          onChange={(e) =>
+                            setClientInfo({
+                              ...clientInfo,
+                              phone: e.target.value,
+                            })
+                          }
+                          placeholder="Ejemplo: 71234567"
+                          className="rounded-xl shadow-sm"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between sm:justify-start sm:gap-10">
+                        <div className="flex flex-col gap-1">
+                          <Label htmlFor="gender">Género</Label>
+                          <Select
+                            value={clientInfo.gender}
+                            onValueChange={(value) =>
+                              setClientInfo({ ...clientInfo, gender: value })
+                            }
+                          >
+                            <SelectTrigger className="rounded-xl shadow-sm">
+                              <SelectValue placeholder="Selecciona el género" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Masculino">
+                                Masculino
+                              </SelectItem>
+                              <SelectItem value="Femenino">Femenino</SelectItem>
+                              <SelectItem value="Otro">Otro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <Label htmlFor="birthDate">Fecha de nacimiento</Label>
+                          <Input
+                            id="birthDate"
+                            type="date"
+                            value={clientInfo.birthDate}
+                            onChange={(e) =>
+                              setClientInfo({
+                                ...clientInfo,
+                                birthDate: e.target.value,
+                              })
+                            }
+                            className="rounded-xl shadow-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter className="mt-6">
+                      <Button
+                        onClick={handleCreateUser}
+                        type="submit"
+                        className="w-full rounded-2xl py-6 text-lg transition hover:scale-[1.02] focus:ring-2 focus:ring-primary"
+                      >
+                        {loading ? "Creando cuenta..." : "Crear cuenta"}
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -289,95 +464,80 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                   </CommandList>
                 )}
               </Command>
-              <Button
-                type="button"
-                onClick={handleCreateUser}
-                disabled={
-                  !formData.email ||
-                  members.some(
-                    (member) =>
-                      member.toLowerCase() === formData.email.toLowerCase()
-                  )
-                }
-                size="sm"
-                className="ml-auto"
-              >
-                {loading ? (
-                  <span>Creando...</span> // Mostrar texto de carga
-                ) : (
-                  <>
-                    <UserPlus />
-                    Crear cuenta
-                  </>
-                )}
-              </Button>
             </div>
-            <div>
-              <Label htmlFor="memb">Membresía</Label>
-              <Select
-                onValueChange={handleSelectChange}
-                value={selectedMembership?.membership_type_id.toString() || ""}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona el tipo de membresía" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Membresía</SelectLabel>
-                    {gymSettings.gymPrices
-                      .filter((price) => !isNaN(price.price)) // Filtra los precios nulos
-                      .map(({ membership_type_id }) => (
-                        <SelectItem
-                          key={membership_type_id}
-                          value={membership_type_id.toString()}
-                        >
-                          {membershipTypes[membership_type_id]}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex md:space-x-10">
-              <div className="mr-2">
-                <Label htmlFor="start_date">Fecha de inicio</Label>
-                <Input
-                  id="start_date"
-                  onChange={handleChange}
-                  value={formData.start_date}
-                  type="date"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="end_date" className="ml-1">
-                  Fecha de finalización
-                </Label>
-                <Input
-                  id="end_date"
-                  value={formData.end_date}
-                  type="date"
-                  className="pr-1 md:pr-3"
-                  readOnly
-                  required
-                />
-              </div>
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="price">Precio</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                  Bs
-                </span>
-                <Input
-                  id="price"
-                  type="number"
-                  value={formData.price}
-                  readOnly
-                  className="pl-10"
-                />
-              </div>
-            </div>
+            {(filteredMembers.some((member) => member === formData.email) ||
+              (searchTerm && searchTerm.includes("@"))) && (
+              <>
+                <div>
+                  <Label htmlFor="memb">Membresía</Label>
+                  <Select
+                    onValueChange={handleSelectChange}
+                    value={
+                      selectedMembership?.membership_type_id.toString() || ""
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona el tipo de membresía" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Membresía</SelectLabel>
+                        {gymSettings.gymPrices
+                          .filter((price) => !isNaN(price.price)) // Filtra los precios nulos
+                          .map(({ membership_type_id }) => (
+                            <SelectItem
+                              key={membership_type_id}
+                              value={membership_type_id.toString()}
+                            >
+                              {membershipTypes[membership_type_id]}
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex md:space-x-10">
+                  <div className="mr-2">
+                    <Label htmlFor="start_date">Fecha de inicio</Label>
+                    <Input
+                      id="start_date"
+                      onChange={handleChange}
+                      value={formData.start_date}
+                      type="date"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="end_date" className="ml-1">
+                      Fecha de finalización
+                    </Label>
+                    <Input
+                      id="end_date"
+                      value={formData.end_date}
+                      type="date"
+                      className="pr-1 md:pr-3"
+                      readOnly
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="price">Precio</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      Bs
+                    </span>
+                    <Input
+                      id="price"
+                      type="number"
+                      value={formData.price}
+                      readOnly
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </form>
       </CardContent>

@@ -44,7 +44,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: "Usuario creado correctamente",
-      user: data,
+      user: {
+        id: data.user.id,
+      },
     });
   } catch (error) {
     console.error("Error en la API:", error);

@@ -318,16 +318,35 @@ export const updateGymData = async (formData: FormData) => {
   );
 };
 
-export const createUserInSupabaseAuth = async (email: string) => {
+export const createUserInSupabaseAuth = async (formData: FormData) => {
+  const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
-  if (!email) {
+  const email = formData.get("email")?.toString();
+  const name = formData.get("name")?.toString();
+  const ci = formData.get("ci")?.toString();
+  const fecha_nacimiento = formData.get("fecha_nacimiento")?.toString();
+  const phone = formData.get("phone")?.toString();
+  const gender = formData.get("gender")?.toString();
+
+  if (!email || !name || !ci || !fecha_nacimiento) {
     return encodedRedirect(
       "error",
       "/dashboard/add-member",
-      "Email es requerido"
+      "Email, nombre, CI y fecha de nacimiento son requeridos"
     );
   }
+
+  // Validar fecha de nacimiento
+  const birthDate = new Date(fecha_nacimiento);
+  if (isNaN(birthDate.getTime())) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-member",
+      "Fecha de nacimiento no válida"
+    );
+  }
+
   // Extraer la parte del nombre antes del @ para usar como contraseña
   const password = email.split("@")[0];
 
@@ -341,6 +360,38 @@ export const createUserInSupabaseAuth = async (email: string) => {
 
   if (!response.ok) {
     return encodedRedirect("error", "/dashboard/add-member", result.error);
+  }
+
+  // Obtener el ID del usuario recién creado desde la respuesta
+  const userId = result.user?.id;
+  console.log(userId);
+  if (!userId) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-member",
+      "No se pudo obtener el ID del usuario creado"
+    );
+  }
+
+  // Actualizar el perfil del usuario en la base de datos usando el ID
+  const { error: profileError } = await supabase
+    .from("users")
+    .update({
+      name,
+      ci,
+      fecha_nacimiento: birthDate.toISOString(),
+      phone,
+      gender,
+    })
+    .eq("id", userId);
+
+  if (profileError) {
+    console.error(profileError.message);
+    return encodedRedirect(
+      "error",
+      "/dashboard/add-member",
+      "No se pudo actualizar el perfil del usuario"
+    );
   }
 
   return encodedRedirect(
