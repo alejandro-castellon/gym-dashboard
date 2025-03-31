@@ -38,7 +38,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 w-full backdrop-blur-md shadow-md h-16 md:h-20 flex items-center px-6 z-50 bg-white/20 dark:bg-black/20">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
-        <Image src="/logo.png" alt="logo" width={40} height={40} />
+        <Image src="/logo.webp" alt="logo" width={50} height={50} className="p-0"/>
         <Image
           src="/logo-letras.png"
           alt="logo"

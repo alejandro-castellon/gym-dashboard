@@ -22,7 +22,7 @@ export default function Sidenav() {
       href="/"
       className="font-normal flex space-x-2 items-center justify-center text-sm text-black py-1 relative z-20"
     >
-      <Image src="/logo.png" alt="Clubs Manager" width={35} height={35} />
+      <Image src="/logo.webp" alt="Clubs Manager" width={40} height={40} />
       <Image
         src={
           resolvedTheme === "dark" ? "/logo-letras2.png" : "/logo-letras.png"
@@ -68,6 +68,6 @@ const LogoIcon = () => (
     href="/"
     className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
   >
-    <Image src="/logo.png" alt="Clubs Manager mobile" width={35} height={35} />
+    <Image src="/logo.webp" alt="Clubs Manager mobile" width={45} height={45} />
   </Link>
 );

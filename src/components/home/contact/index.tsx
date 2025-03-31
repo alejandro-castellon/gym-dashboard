@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { SendIcon } from "lucide-react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ export default function Contact() {
     email: "",
     message: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -24,13 +26,33 @@ export default function Contact() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Formulario enviado:", formData);
-    toast("Formulario enviado", {
-      description: "Gracias por contactarnos. Te responderemos pronto.",
-    });
-    setFormData({ name: "", email: "", message: "" });
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al enviar el mensaje');
+      }
+
+      toast.success("Mensaje enviado", {
+        description: "Gracias por contactarnos. Te responderemos pronto.",
+      });
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      toast.error("Error", {
+        description: "Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -86,8 +108,9 @@ export default function Contact() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
-              Enviar Mensaje
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              <SendIcon className="w-4 h-4 mr-2" />
+              {isLoading ? "Enviando..." : "Enviar Mensaje"}
             </Button>
           </form>
         </motion.div>

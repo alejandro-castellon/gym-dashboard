@@ -34,8 +34,8 @@ export default function Footer() {
       <div className="my-12 grid grid-cols-1 gap-y-10 sm:grid-cols-6 lg:grid-cols-12">
         {/* COLUMN-1 Logo y Slogan */}
         <div className="sm:col-span-6 lg:col-span-5">
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="logo" width={50} height={50} />
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logo.webp" alt="logo" width={50} height={50} />
             <Image src="/logo-letras.png" alt="logo" width={220} height={50} />
           </Link>
           <h3 className="text-xs font-medium mt-5 mb-4 lg:mb-16 text-gray-700 dark:text-gray-300">
@@ -95,11 +95,11 @@ export default function Footer() {
             </li>
             <li className="mb-5 flex items-center">
               <MapPinIcon className="h-6 w-6 mr-2 text-primary" />
-              Av. America Nro. 1234 Cochabamba-Bolivia
+              Av. Waldo Ballivian Nro. 1023 Cochabamba - Bolivia
             </li>
             <li className="mb-5 flex items-center">
               <Mail className="h-5 w-5 mr-2 text-primary" />
-              admin@clubmanager.com
+              admin@clubsmanager.com
             </li>
           </ul>
         </div>
