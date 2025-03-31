@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
-      { error: 'Error al enviar el email' },
+      { error: 'Error al enviar el email' + error },
       { status: 500 }
     );
   }

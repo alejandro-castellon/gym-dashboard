@@ -48,7 +48,7 @@ export default function Contact() {
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
       toast.error("Error", {
-        description: "Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.",
+        description: "Hubo un error al enviar el mensaje. Por favor, intenta nuevamente." + error,
       });
     } finally {
       setIsLoading(false);
