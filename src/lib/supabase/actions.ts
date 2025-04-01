@@ -325,26 +325,29 @@ export const createUserInSupabaseAuth = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const name = formData.get("name")?.toString();
   const ci = formData.get("ci")?.toString();
-  const fecha_nacimiento = formData.get("fecha_nacimiento")?.toString();
-  const phone = formData.get("phone")?.toString();
-  const gender = formData.get("gender")?.toString();
+  const fecha_nacimiento = formData.get("fecha_nacimiento")?.toString() || null;
+  const phone = formData.get("phone")?.toString() || null;
+  const gender = formData.get("gender")?.toString() || null;
 
-  if (!email || !name || !ci || !fecha_nacimiento) {
+  if (!email || !name || !ci) {
     return encodedRedirect(
       "error",
       "/dashboard/add-member",
-      "Email, nombre, CI y fecha de nacimiento son requeridos"
+      "Email, nombre y CI son requeridos"
     );
   }
 
-  // Validar fecha de nacimiento
-  const birthDate = new Date(fecha_nacimiento);
-  if (isNaN(birthDate.getTime())) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/add-member",
-      "Fecha de nacimiento no válida"
-    );
+  // Validar fecha de nacimiento solo si se proporciona
+  let birthDate = null;
+  if (fecha_nacimiento) {
+    birthDate = new Date(fecha_nacimiento);
+    if (isNaN(birthDate.getTime())) {
+      return encodedRedirect(
+        "error",
+        "/dashboard/add-member",
+        "Fecha de nacimiento no válida"
+      );
+    }
   }
 
   // Extraer la parte del nombre antes del @ para usar como contraseña
@@ -364,7 +367,6 @@ export const createUserInSupabaseAuth = async (formData: FormData) => {
 
   // Obtener el ID del usuario recién creado desde la respuesta
   const userId = result.user?.id;
-  console.log(userId);
   if (!userId) {
     return encodedRedirect(
       "error",
@@ -373,16 +375,27 @@ export const createUserInSupabaseAuth = async (formData: FormData) => {
     );
   }
 
+  // Preparar los datos para actualizar, excluyendo los campos nulos
+  const updateData: Record<string, string> = {
+    name,
+    ci,
+  };
+
+  // Agregar campos opcionales solo si tienen valor
+  if (birthDate) {
+    updateData.fecha_nacimiento = birthDate.toISOString();
+  }
+  if (phone) {
+    updateData.phone = phone;
+  }
+  if (gender) {
+    updateData.gender = gender;
+  }
+
   // Actualizar el perfil del usuario en la base de datos usando el ID
   const { error: profileError } = await supabase
     .from("users")
-    .update({
-      name,
-      ci,
-      fecha_nacimiento: birthDate.toISOString(),
-      phone,
-      gender,
-    })
+    .update(updateData)
     .eq("id", userId);
 
   if (profileError) {

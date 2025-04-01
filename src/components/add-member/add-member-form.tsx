@@ -36,18 +36,13 @@ import {
 import { UserPlus } from "lucide-react";
 import { GymSettings, GymPrices } from "@/types";
 import { addMonths, subDays, lastDayOfMonth } from "date-fns";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface SettingsFormProps {
   gymSettings: GymSettings;
   members: string[];
-}
-
-interface ClientInfo {
-  name: string;
-  ci: string;
-  phone: string;
-  gender: string;
-  birthDate: string;
 }
 
 const membershipTypes: Record<number, string> = {
@@ -57,6 +52,28 @@ const membershipTypes: Record<number, string> = {
   4: "Anual",
   5: "Día por medio mensual",
 };
+
+const clientSchema = z.object({
+  email: z.string()
+    .min(1, "El email es obligatorio")
+    .email("Por favor ingrese un email válido")
+    .transform((val: string) => val.toLowerCase().trim()),
+  name: z.string()
+    .min(1, "El nombre es obligatorio")
+    .transform((val: string) => val.trim()),
+  ci: z.string()
+    .min(1, "El número de CI es obligatorio")
+    .regex(/^\d+$/, "El número de CI debe ser numérico")
+    .transform((val: string) => val.trim()),
+  phone: z.string()
+    .optional()
+    .refine(val => !val || /^\d+$/.test(val), "El número de teléfono debe ser numérico")
+    .transform((val: string | undefined) => val?.trim() || ""),
+  gender: z.string().optional(),
+  birthDate: z.string().optional(),
+});
+
+type ClientFormData = z.infer<typeof clientSchema>;
 
 export default function AddMember({ gymSettings, members }: SettingsFormProps) {
   const getTodayDate = () => {
@@ -120,12 +137,15 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [clientInfo, setClientInfo] = useState<ClientInfo>({
-    name: "",
-    ci: "",
-    phone: "",
-    gender: "",
-    birthDate: "",
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm<ClientFormData>({
+    resolver: zodResolver(clientSchema),
   });
 
   const handleSelectChange = (value: string) => {
@@ -174,7 +194,7 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
     if (!selectedMembership) return;
 
     const formDataToSubmit = new FormData();
-    formDataToSubmit.append("email", formData.email);
+    formDataToSubmit.append("email", formData.email.toLowerCase().trim());
     formDataToSubmit.append("start_date", formData.start_date);
     formDataToSubmit.append("end_date", formData.end_date);
     formDataToSubmit.append("price", formData.price);
@@ -189,36 +209,27 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
     setIsChanged(false);
   };
 
-  const handleCreateUser = async () => {
-    if (
-      !clientInfo.name ||
-      !clientInfo.ci ||
-      !clientInfo.phone ||
-      !clientInfo.gender ||
-      !clientInfo.birthDate
-    ) {
-      return;
-    }
-
+  const handleCreateUser = async (data: ClientFormData) => {
     setLoading(true);
     try {
       const formDataToSubmit = new FormData();
-      formDataToSubmit.append("email", formData.email);
-      formDataToSubmit.append("name", clientInfo.name);
-      formDataToSubmit.append("ci", clientInfo.ci);
-      formDataToSubmit.append("phone", clientInfo.phone);
-      formDataToSubmit.append("gender", clientInfo.gender);
-      formDataToSubmit.append("fecha_nacimiento", clientInfo.birthDate);
+      formDataToSubmit.append("email", data.email.toLowerCase().trim());
+      formDataToSubmit.append("name", data.name);
+      formDataToSubmit.append("ci", data.ci);
+      formDataToSubmit.append("phone", data.phone);
+      formDataToSubmit.append("gender", data.gender || "");
+      formDataToSubmit.append("fecha_nacimiento", data.birthDate || "");
 
       await createUserInSupabaseAuth(formDataToSubmit);
     } finally {
-      setClientInfo({
-        name: "",
-        ci: "",
-        phone: "",
-        gender: "",
-        birthDate: "",
-      });
+      // Actualizar el email en el formData principal
+      setFormData(prev => ({
+        ...prev,
+        email: data.email.toLowerCase().trim()
+      }));
+      setSearchTerm(data.email.toLowerCase().trim());
+      
+      reset();
       setLoading(false);
       setDialogOpen(false);
     }
@@ -238,9 +249,7 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <div className="flex items-center">
-                <Label htmlFor="email">Email</Label>
-                <Dialog>
+            <Dialog>
                   <DialogTrigger asChild>
                     <p className="text-xs text-muted-foreground underline cursor-pointer hover:text-primary transition ml-auto">
                       El usuario no tiene cuenta?
@@ -286,6 +295,8 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email">Email</Label>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
                     <Button
@@ -319,76 +330,66 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                     </DialogDescription>
                     <div className="grid gap-5">
                       <div className="flex flex-col gap-1">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">Email *</Label>
                         <Input
                           id="email"
-                          value={formData.email}
-                          onChange={(e) => {
-                            setFormData({ ...formData, email: e.target.value });
-                            setSearchTerm(e.target.value);
-                          }}
+                          {...register("email")}
                           placeholder="ejemplo@correo.com"
                           className="rounded-xl shadow-sm"
                         />
+                        {errors.email && (
+                          <p className="text-sm text-red-500">{errors.email.message}</p>
+                        )}
                       </div>
                       <div className="flex flex-col gap-1">
-                        <Label htmlFor="name">Nombre completo</Label>
+                        <Label htmlFor="name">Nombre completo *</Label>
                         <Input
                           id="name"
-                          value={clientInfo.name}
-                          onChange={(e) =>
-                            setClientInfo({
-                              ...clientInfo,
-                              name: e.target.value,
-                            })
-                          }
+                          {...register("name")}
                           placeholder="Ejemplo: Juan Pérez"
                           className="rounded-xl shadow-sm"
                         />
+                        {errors.name && (
+                          <p className="text-sm text-red-500">{errors.name.message}</p>
+                        )}
                       </div>
                       <div className="flex flex-col gap-1">
-                        <Label htmlFor="ci">Número de CI</Label>
+                        <Label htmlFor="ci">Número de CI *</Label>
                         <Input
                           id="ci"
-                          value={clientInfo.ci}
-                          onChange={(e) =>
-                            setClientInfo({ ...clientInfo, ci: e.target.value })
-                          }
+                          {...register("ci")}
                           placeholder="Ingrese su cédula de identidad"
                           className="rounded-xl shadow-sm"
                         />
+                        {errors.ci && (
+                          <p className="text-sm text-red-500">{errors.ci.message}</p>
+                        )}
                       </div>
                       <div className="flex flex-col gap-1">
                         <Label htmlFor="phone">Teléfono</Label>
                         <Input
                           id="phone"
-                          value={clientInfo.phone}
-                          onChange={(e) =>
-                            setClientInfo({
-                              ...clientInfo,
-                              phone: e.target.value,
-                            })
-                          }
+                          {...register("phone")}
                           placeholder="Ejemplo: 71234567"
                           className="rounded-xl shadow-sm"
                         />
+                        {errors.phone && (
+                          <p className="text-sm text-red-500">{errors.phone.message}</p>
+                        )}
                       </div>
                       <div className="flex items-center justify-between sm:justify-start sm:gap-10">
                         <div className="flex flex-col gap-1">
                           <Label htmlFor="gender">Género</Label>
                           <Select
-                            value={clientInfo.gender}
-                            onValueChange={(value) =>
-                              setClientInfo({ ...clientInfo, gender: value })
-                            }
+                            onValueChange={(value) => {
+                              setValue("gender", value);
+                            }}
                           >
                             <SelectTrigger className="rounded-xl shadow-sm">
                               <SelectValue placeholder="Selecciona el género" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Masculino">
-                                Masculino
-                              </SelectItem>
+                              <SelectItem value="Masculino">Masculino</SelectItem>
                               <SelectItem value="Femenino">Femenino</SelectItem>
                               <SelectItem value="Otro">Otro</SelectItem>
                             </SelectContent>
@@ -399,13 +400,7 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                           <Input
                             id="birthDate"
                             type="date"
-                            value={clientInfo.birthDate}
-                            onChange={(e) =>
-                              setClientInfo({
-                                ...clientInfo,
-                                birthDate: e.target.value,
-                              })
-                            }
+                            {...register("birthDate")}
                             className="rounded-xl shadow-sm"
                           />
                         </div>
@@ -413,7 +408,7 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                     </div>
                     <DialogFooter className="mt-6">
                       <Button
-                        onClick={handleCreateUser}
+                        onClick={handleSubmit(handleCreateUser)}
                         type="submit"
                         className="w-full rounded-2xl py-6 text-lg transition hover:scale-[1.02] focus:ring-2 focus:ring-primary"
                       >
@@ -483,7 +478,7 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                       <SelectGroup>
                         <SelectLabel>Membresía</SelectLabel>
                         {gymSettings.gymPrices
-                          .filter((price) => !isNaN(price.price)) // Filtra los precios nulos
+                          .filter((price) => price.price !== null && price.price !== undefined) // Filtra los precios nulos
                           .map(({ membership_type_id }) => (
                             <SelectItem
                               key={membership_type_id}
