@@ -1,12 +1,7 @@
-import { Suspense } from "react";
 import { Metadata } from "next";
 import { getUserRole } from "@/lib/supabase/data";
 import MemberDashboard from "@/components/dashboard/members";
 import GymDashboard from "@/components/dashboard/gyms";
-import {
-  GymDashboardSkeleton,
-  MembersDashboardSkeleton,
-} from "@/components/ui/skeletons";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -25,15 +20,7 @@ export default async function DashboardPage() {
   return (
     <div>
       <h1 className="text-2xl font-medium mb-4">Dashboard</h1>
-      <Suspense
-        fallback={
-          (data.admin && <GymDashboardSkeleton />) || (
-            <MembersDashboardSkeleton />
-          )
-        }
-      >
-        {RoleBasedData(data.admin, data.id)}
-      </Suspense>
+      {RoleBasedData(data.admin, data.id)}
     </div>
   );
 }

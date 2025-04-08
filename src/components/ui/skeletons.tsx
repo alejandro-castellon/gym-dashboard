@@ -17,6 +17,9 @@ export function GymDashboardSkeleton() {
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2 pb-4">
+        <h1 className="text-2xl font-medium mb-4">Dashboard</h1>
+      </div>
+      <div className="flex items-center space-x-2 pb-4">
         <Skeleton className="h-8 w-64" />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
