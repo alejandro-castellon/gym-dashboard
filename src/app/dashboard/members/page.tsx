@@ -1,65 +1,43 @@
 import { Metadata } from "next";
 import MembersTable from "@/components/members/get-data";
 import MembershipsTable from "@/components/members/memberships/get-data";
-import {
-  Card,
-  CardTitle,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { UserPlus } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const metadata: Metadata = {
   title: "Membresías",
 };
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ view?: string }>;
-}) {
-  const params = await searchParams;
-  const showMembers = params.view !== "memberships";
-
+export default async function Page() {
   return (
     <main>
-      <h1 className="text-2xl font-medium mb-4">Membresías</h1>
-      <Card>
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle className="text-lg font-medium">
-              {showMembers ? "Membresías activas" : "Todas las membresías"}
-            </CardTitle>
-            <CardDescription>
-              {showMembers
-                ? "Aquí puedes ver la lista de membresías activas."
-                : "Aquí puedes ver todas las membresías registradas."}
-            </CardDescription>
-          </div>
-          <div className="flex space-x-2">
-            <Link
-              href={`?view=${showMembers ? "memberships" : "members"}`}
-              passHref
-            >
-              <Button>
-                Ver{" "}
-                {showMembers ? "Todas las Membresías" : "Membresías Activas"}
-              </Button>
-            </Link>
-            <Link href="/dashboard/add-member" passHref>
-              <Button type="button">
-                <UserPlus />
-              </Button>
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {showMembers ? <MembersTable /> : <MembershipsTable />}
-        </CardContent>
-      </Card>
+      <div className="flex flex-col py-4">
+        <h1 className="text-2xl font-medium">Membresías</h1>
+        <p className="text-muted-foreground">
+          Aquí puedes ver todas las membresías registradas.
+        </p>
+      </div>
+      <Tabs defaultValue="active" className="w-full pt-4">
+        <TabsList className="grid w-full grid-cols-2 bg-primary/10">
+          <TabsTrigger
+            value="active"
+            className="data-[state=active]:bg-primary/80 data-[state=active]:text-white"
+          >
+            Membresías activas
+          </TabsTrigger>
+          <TabsTrigger
+            value="all"
+            className="data-[state=active]:bg-primary/80 data-[state=active]:text-white"
+          >
+            Todas las membresías
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="active" className="mt-0">
+          <MembersTable />
+        </TabsContent>
+        <TabsContent value="all" className="mt-0">
+          <MembershipsTable />
+        </TabsContent>
+      </Tabs>
     </main>
   );
 }

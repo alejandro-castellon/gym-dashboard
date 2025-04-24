@@ -66,35 +66,6 @@ const getStatusColor = (status: string): string => {
 
 export const columns: ColumnDef<Membership>[] = [
   {
-    accessorKey: "user_email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="pl-0"
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const id = row.original.users?.id; // Asegurarse de que proviene de users
-      const email = row.getValue("user_email");
-      return id ? (
-        <Link
-          href={`/dashboard/members/${id}`}
-          className="font-bold text-sky-600 hover:text-blue-800"
-        >
-          {email as string}
-        </Link>
-      ) : (
-        <span>{email as string}</span>
-      );
-    },
-  },
-  {
     accessorKey: "name",
     header: ({ column }) => {
       return (
@@ -108,17 +79,21 @@ export const columns: ColumnDef<Membership>[] = [
         </Button>
       );
     },
-    accessorFn: (row) => row.users?.name,
-  },
-  {
-    accessorKey: "ci",
-    header: "Ci",
-    accessorFn: (row) => row.users?.ci,
-    filterFn: (row, id, value) => {
-      const ci = row.getValue(id) as number;
-      const searchValue = value as string;
-      return ci?.toString().includes(searchValue);
+    cell: ({ row }) => {
+      const id = row.original.users?.id;
+      const name = row.getValue("name");
+      return id ? (
+        <Link
+          href={`/dashboard/members/${id}`}
+          className="font-bold text-sky-600 hover:text-blue-800"
+        >
+          {name as string}
+        </Link>
+      ) : (
+        <span>{name as string}</span>
+      );
     },
+    accessorFn: (row) => row.users?.name,
   },
   {
     accessorKey: "membership_type_id",
@@ -170,7 +145,7 @@ export const columns: ColumnDef<Membership>[] = [
   },
   {
     id: "status",
-    header: () => <div className="text-right">Estado</div>,
+    header: "Estado",
     cell: ({ row }) => {
       const endDate = row.getValue("end_date") as string;
       const startDate = row.getValue("start_date") as string;
@@ -180,10 +155,12 @@ export const columns: ColumnDef<Membership>[] = [
       );
       const statusColor = getStatusColor(status);
 
-      return (
-        <div className={`text-right font-medium ${statusColor}`}>{status}</div>
-      );
+      return <div className={`font-medium ${statusColor}`}>{status}</div>;
     },
+  },
+  {
+    accessorKey: "metodo_pago",
+    header: "Método pago",
   },
   {
     accessorKey: "price",

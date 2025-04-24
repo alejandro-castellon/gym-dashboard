@@ -84,11 +84,13 @@ export default function AttendanceTracker({
   };
 
   // Calcular estadísticas de asistencia
-  const totalAttendancesThisMonth = attendanceData.filter(
-    (a) =>
-      new Date(a.date).getMonth() === currentMonth.getMonth() &&
-      new Date(a.date).getFullYear() === currentMonth.getFullYear()
-  ).length;
+  const totalAttendancesThisMonth = attendanceData.filter((a) => {
+    const attendanceDate = new Date(a.date).toISOString().split("T")[0]; // Normalizar a YYYY-MM-DD
+    const currentMonthDate = new Date(currentMonth).toISOString().split("T")[0]; // Normalizar a YYYY-MM-DD
+    return (
+      attendanceDate.slice(0, 7) === currentMonthDate.slice(0, 7) // Comparar año y mes
+    );
+  }).length;
 
   const attendanceRate = Math.round(
     (totalAttendancesThisMonth / daysInMonth) * 100

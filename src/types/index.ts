@@ -47,6 +47,7 @@ export interface Membership {
   price: number; // Precio de la membresía
   days_left?: number; // Días restantes de la membresía
   membership_type_id: number; // ID del tipo de membresía
+  metodo_pago?: string; // Método de pago de la membresía
   gyms?: {
     // Información adicional sobre el gimnasio (opcional si no existe)
     name: string; // Nombre del gimnasio

@@ -54,20 +54,27 @@ const membershipTypes: Record<number, string> = {
 };
 
 const clientSchema = z.object({
-  email: z.string()
+  email: z
+    .string()
     .min(1, "El email es obligatorio")
     .email("Por favor ingrese un email válido")
     .transform((val: string) => val.toLowerCase().trim()),
-  name: z.string()
+  name: z
+    .string()
     .min(1, "El nombre es obligatorio")
     .transform((val: string) => val.trim()),
-  ci: z.string()
+  ci: z
+    .string()
     .min(1, "El número de CI es obligatorio")
     .regex(/^\d+$/, "El número de CI debe ser numérico")
     .transform((val: string) => val.trim()),
-  phone: z.string()
+  phone: z
+    .string()
     .optional()
-    .refine(val => !val || /^\d+$/.test(val), "El número de teléfono debe ser numérico")
+    .refine(
+      (val) => !val || /^\d+$/.test(val),
+      "El número de teléfono debe ser numérico"
+    )
     .transform((val: string | undefined) => val?.trim() || ""),
   gender: z.string().optional(),
   birthDate: z.string().optional(),
@@ -128,11 +135,13 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
     end_date: "",
     price: "",
   };
+  const metodosPago = ["Efectivo", "QR"];
 
   const [formData, setFormData] = useState(initialFormData);
   const [isChanged, setIsChanged] = useState(false);
   const [selectedMembership, setSelectedMembership] =
     useState<GymPrices | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
@@ -166,6 +175,15 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
     setIsChanged(true);
   };
 
+  const handleSelectPago = (value: string) => {
+    setSelectedPaymentMethod(value);
+    setFormData((prev) => ({
+      ...prev,
+      metodo_pago: value,
+    }));
+    setIsChanged(true);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => {
@@ -187,6 +205,9 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
   const handleCancel = () => {
     setFormData(initialFormData);
     setSelectedMembership(null);
+    setSelectedPaymentMethod("");
+    setSearchTerm("");
+    setOpen(false);
     setIsChanged(false);
   };
 
@@ -203,9 +224,13 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
       "membership_type_id",
       selectedMembership.membership_type_id.toString()
     );
+    formDataToSubmit.append("metodo_pago", selectedPaymentMethod);
     createMembership(formDataToSubmit);
     setFormData(initialFormData);
     setSelectedMembership(null);
+    setSelectedPaymentMethod("");
+    setSearchTerm("");
+    setOpen(false);
     setIsChanged(false);
   };
 
@@ -223,12 +248,12 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
       await createUserInSupabaseAuth(formDataToSubmit);
     } finally {
       // Actualizar el email en el formData principal
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        email: data.email.toLowerCase().trim()
+        email: data.email.toLowerCase().trim(),
       }));
       setSearchTerm(data.email.toLowerCase().trim());
-      
+
       reset();
       setLoading(false);
       setDialogOpen(false);
@@ -249,52 +274,52 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-            <Dialog>
-                  <DialogTrigger asChild>
-                    <p className="text-xs text-muted-foreground underline cursor-pointer hover:text-primary transition ml-auto">
-                      El usuario no tiene cuenta?
-                    </p>
-                  </DialogTrigger>
-                  <DialogContent className="p-4 bg-white shadow-lg rounded-md border border-gray-200 sm:w-full md:w-80">
-                    <DialogTitle className="text-lg font-semibold text-gray-800">
-                      Instrucciones
-                    </DialogTitle>
-                    <DialogDescription className="text-sm text-gray-700">
-                      <div className="space-y-3">
-                        <p>
-                          <span className="font-semibold">1. </span>Introduce el
-                          correo electrónico del cliente.
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <span className="font-semibold">2. </span>Presiona el
-                          botón{" "}
-                          <span className="underline text-primary">
-                            Crear cuenta
-                          </span>
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <span className="font-semibold">3. </span>La
-                          contraseña será el nombre del correo electrónico.
-                        </p>
-                        <p className="font-semibold">Ejemplo:</p>
-                        <p>Email: clubsmanager@example.com</p>
-                        <p>Contraseña: clubsmanager</p>
-                        <p>
-                          <span className="font-semibold">4. </span>Continua
-                          creando la membresía.
-                        </p>
-                      </div>
-                    </DialogDescription>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <p className="text-xs text-muted-foreground underline cursor-pointer hover:text-primary transition ml-auto">
+                    El usuario no tiene cuenta?
+                  </p>
+                </DialogTrigger>
+                <DialogContent className="p-4 bg-white shadow-lg rounded-md border border-gray-200 sm:w-full md:w-80">
+                  <DialogTitle className="text-lg font-semibold text-gray-800">
+                    Instrucciones
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-gray-700">
+                    <div className="space-y-3">
+                      <p>
+                        <span className="font-semibold">1. </span>Introduce el
+                        correo electrónico del cliente.
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <span className="font-semibold">2. </span>Presiona el
+                        botón{" "}
+                        <span className="underline text-primary">
+                          Crear cuenta
+                        </span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <span className="font-semibold">3. </span>La contraseña
+                        será el nombre del correo electrónico.
+                      </p>
+                      <p className="font-semibold">Ejemplo:</p>
+                      <p>Email: clubsmanager@example.com</p>
+                      <p>Contraseña: clubsmanager</p>
+                      <p>
+                        <span className="font-semibold">4. </span>Continua
+                        creando la membresía.
+                      </p>
+                    </div>
+                  </DialogDescription>
 
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <button className="text-primary font-medium text-sm">
-                          Cerrar
-                        </button>
-                      </DialogClose>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <button className="text-primary font-medium text-sm">
+                        Cerrar
+                      </button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
               <div className="flex items-center justify-between">
                 <Label htmlFor="email">Email</Label>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -338,7 +363,9 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                           className="rounded-xl shadow-sm"
                         />
                         {errors.email && (
-                          <p className="text-sm text-red-500">{errors.email.message}</p>
+                          <p className="text-sm text-red-500">
+                            {errors.email.message}
+                          </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1">
@@ -350,7 +377,9 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                           className="rounded-xl shadow-sm"
                         />
                         {errors.name && (
-                          <p className="text-sm text-red-500">{errors.name.message}</p>
+                          <p className="text-sm text-red-500">
+                            {errors.name.message}
+                          </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1">
@@ -362,7 +391,9 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                           className="rounded-xl shadow-sm"
                         />
                         {errors.ci && (
-                          <p className="text-sm text-red-500">{errors.ci.message}</p>
+                          <p className="text-sm text-red-500">
+                            {errors.ci.message}
+                          </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1">
@@ -374,7 +405,9 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                           className="rounded-xl shadow-sm"
                         />
                         {errors.phone && (
-                          <p className="text-sm text-red-500">{errors.phone.message}</p>
+                          <p className="text-sm text-red-500">
+                            {errors.phone.message}
+                          </p>
                         )}
                       </div>
                       <div className="flex items-center justify-between sm:justify-start sm:gap-10">
@@ -389,7 +422,9 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                               <SelectValue placeholder="Selecciona el género" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Masculino">Masculino</SelectItem>
+                              <SelectItem value="Masculino">
+                                Masculino
+                              </SelectItem>
                               <SelectItem value="Femenino">Femenino</SelectItem>
                               <SelectItem value="Otro">Otro</SelectItem>
                             </SelectContent>
@@ -463,33 +498,61 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
             {(filteredMembers.some((member) => member === formData.email) ||
               (searchTerm && searchTerm.includes("@"))) && (
               <>
-                <div>
-                  <Label htmlFor="memb">Membresía</Label>
-                  <Select
-                    onValueChange={handleSelectChange}
-                    value={
-                      selectedMembership?.membership_type_id.toString() || ""
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona el tipo de membresía" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Membresía</SelectLabel>
-                        {gymSettings.gymPrices
-                          .filter((price) => price.price !== null && price.price !== undefined) // Filtra los precios nulos
-                          .map(({ membership_type_id }) => (
-                            <SelectItem
-                              key={membership_type_id}
-                              value={membership_type_id.toString()}
-                            >
-                              {membershipTypes[membership_type_id]}
-                            </SelectItem>
-                          ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="w-full">
+                    <Label htmlFor="memb">Membresía</Label>
+                    <Select
+                      onValueChange={handleSelectChange}
+                      value={
+                        selectedMembership?.membership_type_id.toString() || ""
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el tipo de membresía" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Membresía</SelectLabel>
+                          {gymSettings.gymPrices
+                            .filter(
+                              (price) =>
+                                price.price !== null &&
+                                price.price !== undefined
+                            ) // Filtra los precios nulos
+                            .map(({ membership_type_id }) => (
+                              <SelectItem
+                                key={membership_type_id}
+                                value={membership_type_id.toString()}
+                              >
+                                {membershipTypes[membership_type_id]}
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="w-full">
+                    <Label htmlFor="metodo">Método de pago</Label>
+                    <Select
+                      onValueChange={handleSelectPago}
+                      value={selectedPaymentMethod}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el método de pago" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Método</SelectLabel>
+                          <SelectItem value={metodosPago[0]}>
+                            {metodosPago[0]}
+                          </SelectItem>
+                          <SelectItem value={metodosPago[1]}>
+                            {metodosPago[1]}
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="flex md:space-x-10">
                   <div className="mr-2">
@@ -502,19 +565,21 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
                       required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="end_date" className="ml-1">
-                      Fecha de finalización
-                    </Label>
-                    <Input
-                      id="end_date"
-                      value={formData.end_date}
-                      type="date"
-                      className="pr-1 md:pr-3"
-                      readOnly
-                      required
-                    />
-                  </div>
+                  {selectedPaymentMethod && (
+                    <div>
+                      <Label htmlFor="end_date" className="ml-1">
+                        Fecha de finalización
+                      </Label>
+                      <Input
+                        id="end_date"
+                        value={formData.end_date}
+                        type="date"
+                        className="pr-1 md:pr-3"
+                        readOnly
+                        required
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col space-y-1.5">
                   <Label htmlFor="price">Precio</Label>
@@ -541,7 +606,7 @@ export default function AddMember({ gymSettings, members }: SettingsFormProps) {
           Cancelar
         </Button>
         <Button onClick={handleSave} disabled={!isChanged}>
-          Guardar
+          Crear membresía
         </Button>
       </CardFooter>
     </div>

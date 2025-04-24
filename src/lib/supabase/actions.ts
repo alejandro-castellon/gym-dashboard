@@ -243,12 +243,15 @@ export const updateGymData = async (formData: FormData) => {
   // Obtener los horarios de apertura y cierre
   const gym_hours = [...formData.entries()]
     .filter(([key]) => key.endsWith("_open") || key.endsWith("_close"))
-    .reduce((acc, [key, value]) => {
-      const [day, type] = key.split("_");
-      if (!acc[day]) acc[day] = { open: "", close: "" };
-      acc[day][type as "open" | "close"] = value.toString() ?? "";
-      return acc;
-    }, {} as Record<string, { open: string; close: string }>);
+    .reduce(
+      (acc, [key, value]) => {
+        const [day, type] = key.split("_");
+        if (!acc[day]) acc[day] = { open: "", close: "" };
+        acc[day][type as "open" | "close"] = value.toString() ?? "";
+        return acc;
+      },
+      {} as Record<string, { open: string; close: string }>
+    );
 
   // Obtener los precios de las membresías
   const gymPrices = [
@@ -423,6 +426,7 @@ export const createMembership = async (formData: FormData) => {
   const price = formData.get("price")?.toString();
   const gym_id = formData.get("gym_id")?.toString();
   const membership_type_id = formData.get("membership_type_id")?.toString();
+  const metodo_pago = formData.get("metodo_pago")?.toString();
 
   // Validar campos
   if (
@@ -431,7 +435,8 @@ export const createMembership = async (formData: FormData) => {
     !end_date ||
     !price ||
     !gym_id ||
-    !membership_type_id
+    !membership_type_id ||
+    !metodo_pago
   ) {
     return encodedRedirect(
       "error",
@@ -473,6 +478,7 @@ export const createMembership = async (formData: FormData) => {
     end_date,
     price: parseFloat(price),
     membership_type_id: parseInt(membership_type_id),
+    metodo_pago,
   });
 
   if (insertError) {

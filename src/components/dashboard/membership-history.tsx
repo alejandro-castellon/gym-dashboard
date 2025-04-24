@@ -87,9 +87,9 @@ export default function MembershipHistory({
                   "Activa"
                   ? "border-green-200 bg-green-100 dark:bg-green-900"
                   : isActive(membership.start_date, membership.end_date) ===
-                    "Por iniciar"
-                  ? "border-yellow-200 bg-yellow-100 dark:bg-yellow-900"
-                  : "border-gray-200"
+                      "Por iniciar"
+                    ? "border-yellow-200 bg-yellow-100 dark:bg-yellow-900"
+                    : "border-gray-200"
               )}
             >
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
@@ -122,20 +122,26 @@ export default function MembershipHistory({
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-8">
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-300">
-                      Precio
+                      Gimnasio
                     </p>
-                    <p className="font-medium">
-                      Bs {membership.price.toFixed(2)}
-                    </p>
+                    <p className="font-medium">{membership.gyms?.name}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-300">
                       Método de pago
                     </p>
-                    <p className="font-medium">Efectivo</p>
+                    <p className="font-medium">{membership.metodo_pago}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-right text-gray-500 dark:text-gray-300">
+                      Precio
+                    </p>
+                    <p className="font-medium">
+                      Bs {membership.price.toFixed(2)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-300">
