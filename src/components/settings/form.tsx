@@ -65,7 +65,11 @@ export default function Settings({ data }: SettingsFormProps) {
   );
   const [initialData, setInitialData] = useState(formData);
   const [isChanged, setIsChanged] = useState(false);
-  const { user } = useUser();
+  const [loading, setLoading] = useState(false);
+  const { gymId } = useUser();
+  const [errors, setErrors] = useState<{
+    name?: string;
+  }>({});
 
   useEffect(() => {
     setIsChanged(JSON.stringify(formData) !== JSON.stringify(initialData));
@@ -84,6 +88,45 @@ export default function Settings({ data }: SettingsFormProps) {
         [day]: { ...prev.hours[day], [type]: value },
       },
     }));
+  };
+
+  const isDayClosed = (day: Weekday) => {
+    return (
+      formData.hours[day].open === "close" &&
+      formData.hours[day].close === "close"
+    );
+  };
+
+  const toggleDayClosed = (day: Weekday) => {
+    if (isDayClosed(day)) {
+      // If currently closed, set to default empty values
+      setFormData((prev) => ({
+        ...prev,
+        hours: {
+          ...prev.hours,
+          [day]: { open: "", close: "" },
+        },
+      }));
+    } else {
+      // If currently open, set to closed
+      setFormData((prev) => ({
+        ...prev,
+        hours: {
+          ...prev.hours,
+          [day]: { open: "close", close: "close" },
+        },
+      }));
+    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData({ ...formData, name: value });
+
+    // Clear name error when user types
+    if (errors.name && value.trim() !== "") {
+      setErrors({ ...errors, name: undefined });
+    }
   };
 
   const handlePriceChange = (
@@ -105,27 +148,45 @@ export default function Settings({ data }: SettingsFormProps) {
     setFormData(initialData);
   };
 
-  const handleSave = () => {
-    if (JSON.stringify(formData) === JSON.stringify(initialData)) return;
+  const validateForm = () => {
+    const newErrors: { name?: string } = {};
 
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append("name", formData.name);
-    Object.entries(formData.hours).forEach(([day, hours]) => {
-      formDataToSubmit.append(`${day}_open`, hours.open);
-      formDataToSubmit.append(`${day}_close`, hours.close);
-    });
+    if (!formData.name.trim()) {
+      newErrors.name = "El nombre del gimnasio es obligatorio";
+    }
 
-    formData.gymPrices.forEach((price) => {
-      formDataToSubmit.append(
-        `price_${price.membership_type_id}`,
-        price.price?.toString() || ""
-      );
-    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    formDataToSubmit.append("id", user?.id || "");
-    updateGymData(formDataToSubmit);
-    setInitialData(formData);
-    setIsChanged(false);
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      if (JSON.stringify(formData) === JSON.stringify(initialData)) return;
+
+      if (!validateForm()) return;
+
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("name", formData.name);
+      Object.entries(formData.hours).forEach(([day, hours]) => {
+        formDataToSubmit.append(`${day}_open`, hours.open);
+        formDataToSubmit.append(`${day}_close`, hours.close);
+      });
+
+      formData.gymPrices.forEach((price) => {
+        formDataToSubmit.append(
+          `price_${price.membership_type_id}`,
+          price.price?.toString() || ""
+        );
+      });
+
+      formDataToSubmit.append("id", gymId?.toString() || "");
+      await updateGymData(formDataToSubmit);
+    } finally {
+      setLoading(false);
+      setInitialData(formData);
+      setIsChanged(false);
+    }
   };
 
   return (
@@ -139,10 +200,19 @@ export default function Settings({ data }: SettingsFormProps) {
                 id="name"
                 placeholder="Nombre del gimnasio"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={handleNameChange}
+                onBlur={() => {
+                  if (!formData.name.trim()) {
+                    setErrors({
+                      ...errors,
+                      name: "El nombre del gimnasio es obligatorio",
+                    });
+                  }
+                }}
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name}</p>
+              )}
               <div className="flex justify-center font-semibold">
                 <span className="mt-4 md:mb-2">Precios</span>
               </div>
@@ -158,7 +228,7 @@ export default function Settings({ data }: SettingsFormProps) {
                   <Label htmlFor={`price_${membership.id}`} className="pt-4">
                     {`Membresía ${membership.label}`}
                   </Label>
-                  <div className="relative">
+                  <div className="relative w-36 sm:w-64">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
                       Bs
                     </span>
@@ -182,32 +252,55 @@ export default function Settings({ data }: SettingsFormProps) {
                 <span className="mt-4 md:mb-2">Horarios</span>
               </div>
               {weekdays.map((day) => {
+                const closed = isDayClosed(day);
                 const { open, close } = formData.hours[day];
                 return (
-                  <div key={day} className="flex items-center">
+                  <div key={day} className="flex items-center mb-3">
                     <Label
-                      htmlFor={`${day}-open`}
-                      className="w-1/4 mr-4 md:mr-20"
+                      htmlFor={`${day}-toggle`}
+                      className="w-1/4 mr-2 md:mr-20"
                     >
                       {weekdayTranslations[day]}
                     </Label>
-                    <Input
-                      id={`${day}-open`}
-                      type="time"
-                      value={open}
-                      onChange={(e) => handleChange(e, day, "open")}
-                      className="pr-1 md:pr-3"
-                    />
-                    <Label htmlFor={`${day}-close`} className="mx-1 md:mx-3">
-                      -
-                    </Label>
-                    <Input
-                      id={`${day}-close`}
-                      type="time"
-                      value={close}
-                      onChange={(e) => handleChange(e, day, "close")}
-                      className="pr-1 md:pr-3"
-                    />
+                    <div className="flex items-center flex-grow">
+                      <div className="flex items-center mr-1 sm:mr-4">
+                        <Input
+                          type="checkbox"
+                          id={`${day}-toggle`}
+                          checked={closed}
+                          onChange={() => toggleDayClosed(day)}
+                          className="h-4 w-4"
+                        />
+                      </div>
+                      {!closed ? (
+                        <div className="flex items-center flex-grow">
+                          <Input
+                            id={`${day}-open`}
+                            type="time"
+                            value={open}
+                            onChange={(e) => handleChange(e, day, "open")}
+                            className="w-24 pr-0 sm:w-full sm:pr-3"
+                          />
+                          <Label
+                            htmlFor={`${day}-close`}
+                            className="mx-1 md:mx-3"
+                          >
+                            -
+                          </Label>
+                          <Input
+                            id={`${day}-close`}
+                            type="time"
+                            value={close}
+                            onChange={(e) => handleChange(e, day, "close")}
+                            className="w-24 pr-0 sm:w-full sm:pr-3"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground ml-2">
+                          Cerrado todo el día
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -220,7 +313,7 @@ export default function Settings({ data }: SettingsFormProps) {
           Cancelar
         </Button>
         <Button onClick={handleSave} disabled={!isChanged}>
-          Guardar
+          {loading ? "Guardando..." : "Guardar cambios"}
         </Button>
       </CardFooter>
     </div>

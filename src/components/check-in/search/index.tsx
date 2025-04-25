@@ -23,18 +23,18 @@ export default function CheckInInterface() {
   }, [gymId]);
 
   return (
-    <Card className="overflow-hidden bg-[#102836]">
+    <Card className="overflow-hidden bg-green-950">
       <Tabs defaultValue="code" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-[#102836]/50">
+        <TabsList className="grid w-full grid-cols-2 bg-primary/50">
           <TabsTrigger
             value="code"
-            className="data-[state=active]:bg-[#1e4e5f] data-[state=active]:text-white"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white"
           >
             Buscar por Ci
           </TabsTrigger>
           <TabsTrigger
             value="search"
-            className="data-[state=active]:bg-[#1e4e5f] data-[state=active]:text-white"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white"
           >
             Buscar por Nombre
           </TabsTrigger>

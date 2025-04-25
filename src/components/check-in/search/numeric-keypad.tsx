@@ -156,7 +156,7 @@ export default function NumericKeypad({ memberships }: MembershipHistoryProps) {
         <AlertDialogTrigger asChild>
           <Button
             disabled={isLoading}
-            className="w-full bg-emerald-500 py-6 text-lg font-medium hover:bg-emerald-600"
+            className="w-full bg-green-500 py-6 text-lg font-medium hover:bg-green-600"
             onClick={handleValidationAndOpenDialog} // Llamar a la función de validación antes de abrir el diálogo
           >
             {isLoading ? "Registrando..." : "Check In →"}

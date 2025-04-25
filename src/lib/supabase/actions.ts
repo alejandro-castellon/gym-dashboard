@@ -238,7 +238,7 @@ export const updateProfile = async (formData: FormData) => {
 export const updateGymData = async (formData: FormData) => {
   const supabase = await createClient();
   const name = formData.get("name")?.toString();
-  const user_id = formData.get("id")?.toString();
+  const gym_id = formData.get("id")?.toString();
 
   // Obtener los horarios de apertura y cierre
   const gym_hours = [...formData.entries()]
@@ -271,18 +271,11 @@ export const updateGymData = async (formData: FormData) => {
     );
   }
 
-  // Obtener los gimnasios del usuario
-  const { data: gym } = await supabase
-    .from("gyms")
-    .select("*")
-    .contains("admin_ids", [user_id])
-    .single(); // Verifica si el usuario está en admin_ids
-
   // Actualizar el gimnasio en la base de datos
   const { error } = await supabase
     .from("gyms")
     .update({ name, hours: gym_hours })
-    .eq("id", gym.id)
+    .eq("id", gym_id)
     .single();
 
   if (error) {
@@ -302,7 +295,7 @@ export const updateGymData = async (formData: FormData) => {
         price: price, // Guardamos el precio como número
       })
       .eq("membership_type_id", membership_type_id)
-      .eq("gym_id", gym.id);
+      .eq("gym_id", gym_id);
 
     if (priceError) {
       console.error(priceError.message);
